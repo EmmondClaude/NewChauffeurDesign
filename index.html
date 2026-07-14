@@ -1,1260 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>The Chauffeurs — Las Vegas Strip Ground Command</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Chauffeurs — Arriving</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
 <style>
-/* ===== RESET & ROOT ===== */
+:root {
+  --obsidian:#050505;--surface:#0A0A0A;--surface-2:#0D0D0D;--white:#FFFFFF;
+  --white-dim:rgba(255,255,255,0.12);--white-ghost:rgba(255,255,255,0.04);
+  --gold:#C9A84C;--gold-bright:#FFD700;--silver:#C0C0C0;--dim:#444444;
+  --gold-silver:linear-gradient(90deg,#C9A84C 0%,#E8E8E8 14%,#FFD700 28%,#C0C0C0 42%,#D4AF37 56%,#F5F5F5 70%,#C9A84C 84%,#B8B8B8 100%);
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold: #D4AF37;
-  --gold-light: #E8C84A;
-  --gold-dark: #A88B1F;
-  --silver: #C7CCD2;
-  --silver-dark: #9AA0A8;
-  --white: #FFFFFF;
-  --black: #0A0A0A;
-  --deep: #111111;
-  --surface: #181818;
-  --surface2: #1E1E1E;
-  --muted: rgba(199,204,210,0.5);
-  --border: rgba(212,175,55,0.15);
-  --bebas:'Bebas Neue',sans-serif;--dm:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:var(--obsidian);color:var(--white);font-family:'Space Grotesk',sans-serif;font-weight:400;cursor:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+#cursor{position:fixed;width:22px;height:22px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s,height .3s}
+#cursor::before,#cursor::after{content:'';position:absolute;background:rgba(255,255,255,.9)}
+#cursor::before{width:1px;height:100%;left:50%;top:0;transform:translateX(-50%)}
+#cursor::after{width:100%;height:1px;top:50%;left:0;transform:translateY(-50%)}
+#cursor.hovering{width:40px;height:40px}
+#cursor-dot{position:fixed;width:3px;height:3px;background:var(--white);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%)}
+.video-wrap{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;background:#000}
+#introVideo{width:100%;height:100%;object-fit:cover}
+.vignette{position:fixed;inset:0;z-index:10;pointer-events:none;background:radial-gradient(ellipse at center,transparent 25%,rgba(5,5,5,.45) 70%,rgba(5,5,5,.92) 100%)}
+.film-grain{position:fixed;inset:-50%;z-index:11;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .35s steps(3) infinite;mix-blend-mode:overlay}
+@keyframes grain{0%{transform:translate(0,0)}33%{transform:translate(3px,-3px)}66%{transform:translate(-3px,2px)}100%{transform:translate(0,0)}}
+.scan-lines{position:fixed;inset:0;z-index:12;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 4px)}
+.light-leak{position:fixed;top:-50vh;left:-50vw;width:200vw;height:200vh;z-index:9;pointer-events:none;background:conic-gradient(from 45deg at 30% 30%,transparent 0deg,rgba(123,47,255,.018) 30deg,rgba(0,245,255,.012) 70deg,transparent 100deg,transparent 200deg,rgba(255,46,149,.015) 250deg,rgba(255,215,0,.01) 290deg,transparent 360deg);animation:lightLeakMove 22s ease-in-out infinite alternate}
+@keyframes lightLeakMove{0%{transform:translate(0,0) rotate(0deg) scale(1)}33%{transform:translate(5vw,-5vh) rotate(8deg) scale(1.05)}66%{transform:translate(-8vw,3vh) rotate(-6deg) scale(.98)}100%{transform:translate(3vw,7vh) rotate(12deg) scale(1.03)}}
+.letterbox{position:fixed;left:0;right:0;background:#000;z-index:13;pointer-events:none;transition:height 1s cubic-bezier(.4,0,.2,1)}
+.letterbox.top{top:0;height:5vh}
+.letterbox.bottom{bottom:0;height:5vh}
+.fog-container{position:fixed;inset:0;z-index:8;pointer-events:none;overflow:hidden}
+.fog-layer{position:absolute;border-radius:50%;filter:blur(60px);opacity:0;will-change:transform,opacity}
+.fog-1{bottom:-20%;left:-10%;width:80%;height:70vh;background:radial-gradient(ellipse at 50% 80%,rgba(255,255,255,.07) 0%,rgba(255,255,255,.035) 30%,transparent 65%);animation:fogDrift1 12s ease-in-out infinite alternate}
+.fog-2{bottom:-15%;right:-10%;width:70%;height:60vh;background:radial-gradient(ellipse at 50% 70%,rgba(255,215,0,.04) 0%,rgba(201,168,76,.02) 35%,transparent 65%);animation:fogDrift2 16s ease-in-out infinite alternate}
+.fog-3{bottom:-25%;left:20%;width:60%;height:55vh;background:radial-gradient(ellipse at 50% 75%,rgba(255,255,255,.05) 0%,rgba(255,255,255,.025) 30%,transparent 60%);animation:fogDrift3 10s ease-in-out infinite alternate}
+.fog-4{bottom:-10%;left:40%;width:50%;height:45vh;background:radial-gradient(ellipse at 50% 65%,rgba(123,47,255,.03) 0%,rgba(0,245,255,.02) 40%,transparent 60%);animation:fogDrift1 14s ease-in-out infinite alternate-reverse}
+@keyframes fogDrift1{0%{transform:translate(0,0) scale(1);opacity:.5}50%{transform:translate(8vw,-4vh) scale(1.1);opacity:.7}100%{transform:translate(-6vw,3vh) scale(.95);opacity:.4}}
+@keyframes fogDrift2{0%{transform:translate(0,0) scale(1);opacity:.4}50%{transform:translate(-8vw,5vh) scale(1.15);opacity:.6}100%{transform:translate(5vw,-3vh) scale(.9);opacity:.3}}
+@keyframes fogDrift3{0%{transform:translate(0,0) scale(1);opacity:.6}50%{transform:translate(6vw,4vh) scale(1.08);opacity:.8}100%{transform:translate(-4vw,-2vh) scale(.92);opacity:.5}}
+.fog-wisp{position:absolute;border-radius:50%;background:rgba(255,255,255,.04);filter:blur(20px);will-change:transform,opacity}
+.fog-wisp:nth-child(5){bottom:5%;left:15%;width:120px;height:60px;animation:wispFloat 8s ease-in-out infinite}
+.fog-wisp:nth-child(6){bottom:8%;left:45%;width:90px;height:45px;animation:wispFloat 10s ease-in-out infinite 1s}
+.fog-wisp:nth-child(7){bottom:3%;left:70%;width:150px;height:70px;animation:wispFloat 12s ease-in-out infinite 2s}
+.fog-wisp:nth-child(8){bottom:12%;left:30%;width:80px;height:40px;animation:wispFloat 9s ease-in-out infinite .5s}
+.fog-wisp:nth-child(9){bottom:6%;left:85%;width:100px;height:50px;animation:wispFloat 11s ease-in-out infinite 1.5s}
+@keyframes wispFloat{0%{transform:translate(0,0) scale(1);opacity:0}20%{opacity:.6}50%{transform:translate(30px,-40px) scale(1.3);opacity:.4}80%{opacity:.2}100%{transform:translate(60px,-80px) scale(1.5);opacity:0}}
+
+/* GLOW EFFECT — behind buttons only, does NOT change button styling */
+.glow-effect{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;border-radius:inherit;will-change:transform,opacity;backface-visibility:hidden}
+.glow-effect.breathe{filter:blur(14px);opacity:.5;animation:glowBreathe 5s ease-in-out infinite}
+@keyframes glowBreathe{
+  0%,100%{background:radial-gradient(circle at 50% 50%,#C9A84C 0%,transparent 100%);transform:scale(1);opacity:.4}
+  33%{background:radial-gradient(circle at 50% 50%,#FFD700 0%,transparent 100%);transform:scale(1.05);opacity:.65}
+  66%{background:radial-gradient(circle at 50% 50%,#C0C0C0 0%,transparent 100%);transform:scale(1.03);opacity:.55}
 }
-html{scroll-behavior:smooth;cursor:none}
-body{background:var(--black);color:var(--white);font-family:var(--dm);overflow-x:hidden;cursor:none}
-a{color:inherit;text-decoration:none}
-img{display:block;max-width:100%}
+.glow-effect.colorShift{filter:blur(10px);opacity:0;background:conic-gradient(from 0deg,#C9A84C,#E8E8E8,#FFD700,#C0C0C0,#D4AF37,#F5F5F5,#C9A84C);animation:glowColorShift 4s linear infinite;transition:opacity .5s ease}
+@keyframes glowColorShift{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.04)}100%{transform:rotate(360deg) scale(1)}}
 
-/* ===== CUSTOM CURSOR ===== */
-#cursor{position:fixed;width:28px;height:28px;border-radius:50%;border:2px solid var(--white);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:border-color .2s,transform .15s,width .2s,height .2s;mix-blend-mode:difference}
-#cursor.hover{width:48px;height:48px;border-color:var(--gold)}
-#cursor-dot{position:fixed;width:5px;height:5px;border-radius:50%;background:var(--gold);pointer-events:none;z-index:99998;transform:translate(-50%,-50%)}
+.center-stack{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0 2rem}
+.logo-wrap{position:relative;opacity:0;transform:scale(.85);filter:blur(20px);transition:opacity 1.4s cubic-bezier(.76,0,.24,1),transform 1.4s cubic-bezier(.76,0,.24,1),filter 1.4s cubic-bezier(.76,0,.24,1)}
+.logo-wrap.revealed{opacity:1;transform:scale(1);filter:blur(0)}
+.logo-wrap::before{content:'';position:absolute;inset:-30%;background:radial-gradient(ellipse at center,rgba(201,168,76,.08) 0%,rgba(201,168,76,.03) 30%,transparent 60%);z-index:-1;animation:logoGlow 4s ease-in-out infinite alternate}
+@keyframes logoGlow{0%{opacity:.6;transform:scale(1)}100%{opacity:1;transform:scale(1.08)}}
+.tc-logo{width:clamp(120px,18vw,200px);height:auto;display:block;mix-blend-mode:screen;filter:drop-shadow(0 0 20px rgba(201,168,76,.15))}
+.logo-wrap.glitch{animation:logoChroma .6s ease-in-out}
+@keyframes logoChroma{0%,100%{filter:blur(0)}20%{filter:blur(0) drop-shadow(-4px 0 0 rgba(255,0,60,.5)) drop-shadow(4px 0 0 rgba(0,245,255,.5))}40%{filter:blur(0) drop-shadow(3px 0 0 rgba(255,0,60,.3)) drop-shadow(-3px 0 0 rgba(0,245,255,.3))}60%{filter:blur(0) drop-shadow(-2px 0 0 rgba(255,0,60,.2)) drop-shadow(2px 0 0 rgba(0,245,255,.2))}}
+.brand-name{margin-top:1.8rem;font-size:clamp(.8rem,1.4vw,1.05rem);font-weight:500;letter-spacing:.42em;text-transform:uppercase;color:rgba(255,255,255,.82);opacity:0;transform:translateY(20px);transition:opacity 1s ease .5s,transform 1s ease .5s;text-indent:.42em}
+.brand-name.revealed{opacity:1;transform:translateY(0)}
+.brand-name .accent-gold{color:var(--gold)}
+.brand-tagline{margin-top:.6rem;font-size:.6rem;font-weight:300;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.3);opacity:0;transform:translateY(12px);transition:opacity .8s ease .8s,transform .8s ease .8s;text-indent:.32em}
+.brand-tagline.revealed{opacity:1;transform:translateY(0)}
 
-/* ══════════════════════════════════════
-   THEATRICAL LOADER
-   ══════════════════════════════════════ */
-#tc-loader {
-  position: fixed; inset: 0; z-index: 99999;
-  background: #0A0A0A;
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-  transition: opacity 1.2s cubic-bezier(0.4,0,0.2,1), visibility 1.2s;
+/* Breathing gold-silver metallic accent (replaces rainbow) */
+.brand-spectrum{width:0;height:2px;margin-top:1.4rem;background:var(--gold-silver);background-size:300% 100%;border-radius:1px;box-shadow:0 0 8px rgba(201,168,76,.5),0 0 20px rgba(192,192,192,.25),0 0 40px rgba(201,168,76,.12);transition:width 1.2s cubic-bezier(.76,0,.24,1) 1s;animation:goldSilverBreath 6s ease-in-out infinite}
+.brand-spectrum.drawn{width:240px}
+@keyframes goldSilverBreath{0%,100%{background-position:0% 50%;filter:brightness(1)}50%{background-position:100% 50%;filter:brightness(1.3)}}
+
+.loading-section{margin-top:3rem;display:flex;flex-direction:column;align-items:center;gap:.8rem;opacity:0;transform:translateY(16px);transition:opacity .8s ease 1.2s,transform .8s ease 1.2s}
+.loading-section.revealed{opacity:1;transform:translateY(0)}
+.loading-section.fade-out{opacity:0;transform:translateY(-10px);transition:opacity .6s ease,transform .6s ease}
+.loading-track{width:260px;height:2px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
+.loading-fill{position:absolute;top:0;left:0;height:100%;width:0;background:var(--gold-silver);background-size:300% 100%;box-shadow:0 0 8px rgba(201,168,76,.5),0 0 18px rgba(192,192,192,.3);animation:goldSilverBreath 6s ease-in-out infinite;transition:width .3s ease-out}
+.loading-meta{display:flex;align-items:center;gap:1rem;font-size:.6rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.32)}
+.loading-percent{color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;min-width:2.5em;text-align:right}
+.loading-divider{width:1px;height:10px;background:rgba(255,255,255,.12)}
+.loading-label{transition:color .4s,opacity .4s}
+.loading-label.ready{color:var(--gold);opacity:1}
+
+/* ENTER BUTTON — GlowEffect behind, button styling unchanged */
+.enter-btn-wrap{position:relative;margin-top:2.5rem;opacity:0;transform:translateY(20px);pointer-events:none;transition:opacity .9s cubic-bezier(.76,0,.24,1),transform .9s cubic-bezier(.76,0,.24,1);display:inline-block}
+.enter-btn-wrap.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.enter-btn-wrap .glow-effect{inset:-6px;border-radius:6px}
+.enter-btn-wrap:hover .glow-effect.colorShift{opacity:.6}
+.enter-btn{position:relative;z-index:1;font-family:'Space Grotesk',sans-serif;font-size:.74rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--white);background:transparent;border:1px solid rgba(201,168,76,.35);padding:.95rem 3.2rem;cursor:none;transition:all .4s cubic-bezier(.76,0,.24,1);text-decoration:none;display:inline-block;overflow:hidden;text-indent:.28em}
+.enter-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,.12),transparent);transition:left .6s ease}
+.enter-btn:hover{border-color:rgba(201,168,76,.7);background:rgba(201,168,76,.04);box-shadow:0 0 24px rgba(201,168,76,.15),inset 0 0 20px rgba(201,168,76,.05);transform:translateY(-2px)}
+.enter-btn:hover::before{left:100%}
+
+/* SKIP BUTTON — GlowEffect behind, button styling unchanged */
+.skip-btn-wrap{position:fixed;bottom:2.5rem;right:2.5rem;z-index:25;display:inline-block}
+.skip-btn-wrap .glow-effect{inset:-4px;border-radius:4px;opacity:.25;filter:blur(10px)}
+.skip-btn-wrap:hover .glow-effect.breathe{opacity:.5}
+.skip-btn{position:relative;z-index:1;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);font-family:'Space Grotesk',sans-serif;font-size:.65rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;padding:.55rem 1.3rem;cursor:none;transition:all .3s}
+.skip-btn:hover{border-color:rgba(255,255,255,.35);color:rgba(255,255,255,.6);background:rgba(255,255,255,.03)}
+
+.unmute-prompt{position:fixed;bottom:2.5rem;left:2.5rem;z-index:25;font-size:.6rem;font-weight:400;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);pointer-events:none;opacity:0;transition:opacity .5s;display:flex;align-items:center;gap:.5rem}
+.unmute-prompt.visible{opacity:1}
+.unmute-prompt .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulseDot 1.6s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+.corner-marker{position:fixed;width:24px;height:24px;z-index:15;pointer-events:none;opacity:0;transition:opacity .8s ease 1.5s}
+.corner-marker.revealed{opacity:.3}
+.corner-marker::before,.corner-marker::after{content:'';position:absolute;background:rgba(255,255,255,.4)}
+.corner-marker::before{width:100%;height:1px}
+.corner-marker::after{width:1px;height:100%}
+.cm-tl{top:2.5rem;left:2.5rem}.cm-tl::before{top:0;left:0}.cm-tl::after{top:0;left:0}
+.cm-tr{top:2.5rem;right:2.5rem}.cm-tr::before{top:0;right:0}.cm-tr::after{top:0;right:0}
+.cm-bl{bottom:2.5rem;left:2.5rem}.cm-bl::before{bottom:0;left:0}.cm-bl::after{bottom:0;left:0}
+.cm-br{bottom:2.5rem;right:2.5rem}.cm-br::before{bottom:0;right:0}.cm-br::after{bottom:0;right:0}
+.fade-to-black{position:fixed;inset:0;z-index:100;background:var(--obsidian);opacity:0;pointer-events:none;transition:opacity 1s ease}
+.fade-to-black.active{opacity:1;pointer-events:auto}
+@media(max-width:768px){
+  .skip-btn-wrap{bottom:1.5rem;right:1.5rem}.unmute-prompt{bottom:1.5rem;left:1.5rem}
+  .letterbox.top,.letterbox.bottom{height:4vh}.enter-btn{padding:.85rem 2.4rem;font-size:.68rem}
+  .loading-track{width:200px}.corner-marker{width:16px;height:16px}
+  .cm-tl,.cm-bl{left:1.5rem}.cm-tr,.cm-br{right:1.5rem}.cm-tl,.cm-tr{top:1.5rem}.cm-bl,.cm-br{bottom:1.5rem}
+  body{cursor:auto}#cursor,#cursor-dot{display:none}
 }
-#tc-loader.exit {
-  opacity: 0; visibility: hidden; pointer-events: none;
-}
-
-
-  50%{opacity:0.8;transform:scale(1.5)}
-}
-
-/* FRAME — gold border that draws itself */
-.loader-frame {
-  position: absolute; inset: 32px;
-  pointer-events: none;
-}
-.frame-line {
-  position: absolute; background: linear-gradient(90deg, transparent, #D4AF37, transparent);
-}
-.frame-top, .frame-bottom { height: 1px; left: 0; right: 0; transform: scaleX(0); }
-.frame-left, .frame-right { width: 1px; top: 0; bottom: 0; transform: scaleY(0); background: linear-gradient(180deg, transparent, #D4AF37, transparent); }
-.frame-top { top: 0; animation: frameDrawH 1s 0.2s cubic-bezier(0.4,0,0.2,1) forwards; transform-origin: left; }
-.frame-bottom { bottom: 0; animation: frameDrawH 1s 0.4s cubic-bezier(0.4,0,0.2,1) forwards; transform-origin: right; }
-.frame-left { left: 0; animation: frameDrawV 1s 0.3s cubic-bezier(0.4,0,0.2,1) forwards; transform-origin: top; }
-.frame-right { right: 0; animation: frameDrawV 1s 0.5s cubic-bezier(0.4,0,0.2,1) forwards; transform-origin: bottom; }
-@keyframes frameDrawH { to { transform: scaleX(1); } }
-@keyframes frameDrawV { to { transform: scaleY(1); } }
-
-/* CORNER ORNAMENTS */
-.corner-ornament {
-  position: absolute; color: #D4AF37; font-size: 10px;
-  opacity: 0; animation: cornerFade 0.6s 0.8s forwards;
-}
-.corner-tl { top: 24px; left: 24px; }
-.corner-tr { top: 24px; right: 24px; }
-.corner-bl { bottom: 24px; left: 24px; }
-.corner-br { bottom: 24px; right: 24px; }
-@keyframes cornerFade { to { opacity: 0.6; } }
-
-/* CENTER CONTENT */
-.loader-center {
-  position: relative; z-index: 2;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 0;
-}
-
-/* EMBLEM */
-.loader-emblem {
-  position: relative;
-  width: 220px; height: 220px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 32px;
-  opacity: 0;
-  animation: emblemReveal 1.4s 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
-}
-.loader-seal-img {
-  width: 200px; height: 200px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 30px rgba(212,175,55,0.4)) drop-shadow(0 0 60px rgba(212,175,55,0.2));
-  animation: sealFloat 6s 2s ease-in-out infinite;
-}
-.loader-seal-glow {
-  position: absolute; inset: -20px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%);
-  animation: sealGlowPulse 3s 1.5s ease-in-out infinite;
-}
-@keyframes emblemReveal {
-  from { opacity:0; transform: scale(0.6) translateY(20px); }
-  to   { opacity:1; transform: scale(1) translateY(0); }
-}
-@keyframes sealFloat {
-  0%,100%{transform:translateY(0) rotate(-0.5deg)}
-  50%{transform:translateY(-8px) rotate(0.5deg)}
-}
-@keyframes sealGlowPulse {
-  0%,100%{opacity:0.5;transform:scale(1)}
-  50%{opacity:1;transform:scale(1.15)}
-}
-
-/* BRAND REVEAL */
-.loader-brand {
-  display: flex; align-items: center; gap: 16px;
-  margin-bottom: 24px;
-  opacity: 0;
-  animation: brandReveal 0.8s 1.6s cubic-bezier(0.4,0,0.2,1) forwards;
-}
-.loader-brand-line {
-  width: 40px; height: 1px;
-  background: linear-gradient(90deg, transparent, #D4AF37);
-}
-.loader-brand-line:last-child {
-  background: linear-gradient(90deg, #D4AF37, transparent);
-}
-.loader-tagline {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase;
-  color: #C7CCD2;
-}
-@keyframes brandReveal {
-  from { opacity:0; transform:translateY(10px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-/* PROGRESS BAR */
-.loader-progress-wrap {
-  width: 200px; height: 1px;
-  background: rgba(199,204,210,0.15);
-  margin-bottom: 12px;
-  overflow: hidden;
-  opacity: 0;
-  animation: progressAppear 0.4s 1.8s forwards;
-}
-.loader-progress-bar {
-  height: 100%; width: 0;
-  background: linear-gradient(90deg, #A88B1F, #D4AF37, #E8C84A);
-  animation: progressFill 2s 2s cubic-bezier(0.4,0,0.2,1) forwards;
-  box-shadow: 0 0 8px rgba(212,175,55,0.8);
-}
-.loader-progress-text {
-  font-family: 'DM Mono', monospace;
-  font-size: 8px; letter-spacing: 0.5em; text-transform: uppercase;
-  color: rgba(199,204,210,0.4);
-  opacity: 0;
-  animation: progressAppear 0.4s 2s forwards;
-}
-@keyframes progressAppear { to { opacity: 1; } }
-@keyframes progressFill { to { width: 100%; } }
-
-/* ===== NAV ===== */
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;transition:background .4s,backdrop-filter .4s,padding .3s}
-nav.scrolled{background:rgba(10,10,10,.82);backdrop-filter:blur(18px);padding:14px 48px;border-bottom:1px solid rgba(212,175,55,.08)}
-.nav-logo{display:flex;align-items:center;justify-content:center}
-.nav-links{display:flex;gap:32px;list-style:none}
-.nav-links a{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--silver);transition:color .2s}
-.nav-links a:hover{color:var(--white)}
-.nav-cta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:10px 24px;background:var(--gold);color:var(--black);font-weight:600;justify-self:end;transition:background .2s,color .2s}
-.nav-cta:hover{background:var(--gold-light);color:var(--black)}
-
-/* ===== THREE.JS CANVAS ===== */
-
-
-/* ===== HERO ===== */
-#hero{position:relative;width:100%;height:100vh;min-height:700px;overflow:hidden;z-index:1;display:flex;align-items:center}
-#hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
-#hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(10,10,10,0.82) 0%,rgba(10,10,10,0.42) 45%,rgba(10,10,10,0.08) 75%,rgba(10,10,10,0.18) 100%);z-index:2}
-.hero-side-label{position:absolute;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:rgba(199,204,210,.5);text-transform:uppercase;z-index:10;writing-mode:vertical-lr}
-.hero-side-label.left{left:20px;top:50%;transform:translateY(-50%) rotate(180deg)}
-.hero-side-label.right{right:20px;top:50%;transform:translateY(-50%)}
-.hero-inner{position:relative;z-index:10;width:100%;max-width:1440px;margin:0 auto;padding:0 80px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-.hero-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;overflow:hidden}
-.hero-kicker span{display:block;transform:translateY(100%);transition:transform .7s .3s cubic-bezier(.16,1,.3,1)}
-.hero-kicker span.in{transform:translateY(0)}
-.hero-headline{font-family:var(--bebas);font-size:clamp(72px,8.5vw,128px);line-height:.92;margin-bottom:24px}
-.hero-headline .word{display:block;overflow:hidden}
-.hero-headline .word span{display:block;transform:translateY(110%);transition:transform .8s cubic-bezier(.16,1,.3,1)}
-.hero-headline .word:nth-child(1) span{transition-delay:.2s}
-.hero-headline .word:nth-child(2) span{transition-delay:.35s}
-.hero-headline .word:nth-child(3) span{transition-delay:.5s;-webkit-text-stroke:2px var(--white);color:transparent}
-.hero-headline .word.in span{transform:translateY(0)}
-/* New class names for JS-triggered animations */
-.hero-headline .word.visible span{transform:translateY(0)}
-.hero-kicker.visible span{transform:translateY(0)}
-.hero-desc{font-size:15px;line-height:1.7;color:var(--silver);max-width:400px;margin-bottom:32px;opacity:0;transform:translateY(20px);transition:opacity .7s .8s,transform .7s .8s}
-.hero-desc.in,.hero-desc.visible{opacity:1;transform:none}
-.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;opacity:0;transform:translateY(20px);transition:opacity .7s 1s,transform .7s 1s}
-.hero-ctas.in,.hero-ctas.visible{opacity:1;transform:none}
-.cta-primary{font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;padding:16px 36px;background:var(--gold);color:var(--black);font-weight:600;transition:background .2s,transform .2s}
-.cta-primary:hover{background:var(--gold-light);transform:translateY(-2px)}
-.cta-secondary{font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;padding:16px 36px;border:1px solid var(--silver);color:var(--silver);transition:border-color .2s,color .2s}
-.cta-secondary:hover{border-color:var(--white);color:var(--white)}
-
-.hero-right{display:flex;flex-direction:column;gap:32px}
-.hero-stats{display:flex;gap:0;border:1px solid rgba(199,204,210,.12)}
-.stat-item{flex:1;padding:24px 20px;border-right:1px solid rgba(199,204,210,.12);text-align:center}
-.stat-item:last-child{border-right:none}
-.stat-num{font-family:var(--bebas);font-size:clamp(32px,3.5vw,52px);color:var(--white);line-height:1;display:block}
-.stat-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--silver);text-transform:uppercase;margin-top:4px;display:block}
-.feature-pills{display:flex;flex-direction:column;gap:10px}
-.pill{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;padding:12px 20px;border:1px solid rgba(199,204,210,.15);color:var(--silver);display:flex;align-items:center;gap:12px;transform:translateX(60px);opacity:0;transition:transform .6s cubic-bezier(.16,1,.3,1),opacity .5s,border-color .2s,color .2s}
-.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
-.pill.in{transform:none;opacity:1}
-.pill:hover{border-color:var(--gold);color:var(--white)}
-.pill:nth-child(1){transition-delay:.1s}
-.pill:nth-child(2){transition-delay:.2s}
-.pill:nth-child(3){transition-delay:.3s}
-.pill:nth-child(4){transition-delay:.4s}
-.pill:nth-child(5){transition-delay:.5s}
-
-/* hero-stat / hero-feat visibility for new JS */
-.hero-stat,.hero-feat{opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s}
-.hero-stat.visible,.hero-feat.visible{opacity:1;transform:none}
-
-.scroll-hint{position:absolute;bottom:40px;left:80px;z-index:10;display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:rgba(199,204,210,.4);text-transform:uppercase}
-.scroll-hint::before{content:'';width:40px;height:1px;background:var(--gold)}
-
-/* ===== STRIP PANELS ===== */
-#strip-panels{display:grid;grid-template-columns:repeat(3,1fr);width:100%;position:relative;z-index:5}
-.panel{position:relative;min-height:500px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:48px 40px;background-size:cover;background-position:center}
-.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.16,1,.3,1)}
-.panel.gold-sweep::before{background:var(--gold-light)}
-.panel.chrome-sweep::before{background:var(--silver)}
-.panel:hover::before{transform:scaleX(1)}
-.panel-bg-overlay{position:absolute;inset:0;background:rgba(10,10,10,.85);transition:background .4s}
-.panel:hover .panel-bg-overlay{background:rgba(10,10,10,.75)}
-.panel-content{position:relative;z-index:2}
-.panel-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
-.panel.gold-sweep .panel-eyebrow{color:var(--gold-light)}
-.panel.chrome-sweep .panel-eyebrow{color:var(--silver)}
-.panel-title{font-family:var(--bebas);font-size:clamp(36px,3.5vw,52px);line-height:1;color:var(--white);margin-bottom:16px}
-.panel-body{font-size:14px;line-height:1.7;color:var(--silver);margin-bottom:24px;max-width:320px}
-.panel-link{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;transition:gap .2s}
-.panel.gold-sweep .panel-link{color:var(--gold-light)}
-.panel.chrome-sweep .panel-link{color:var(--silver)}
-.panel-link:hover{gap:16px}
-.panel-link::after{content:'→'}
-
-/* ===== EXPERIENCE SECTION ===== */
-#experience{display:grid;grid-template-columns:1fr 1fr;min-height:600px;overflow:hidden;position:relative;z-index:5}
-.exp-image{overflow:hidden;transform:translateX(-80px);opacity:0;transition:transform .9s cubic-bezier(.16,1,.3,1),opacity .8s}
-.exp-image.in{transform:none;opacity:1}
-.exp-image img{width:100%;height:100%;object-fit:cover;min-height:600px}
-.exp-right{background:#111111;padding:80px 60px;display:flex;flex-direction:column;justify-content:center;transform:translateX(80px);opacity:0;transition:transform .9s cubic-bezier(.16,1,.3,1),opacity .8s}
-.exp-right.in{transform:none;opacity:1}
-.exp-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
-.exp-title{font-family:var(--bebas);font-size:clamp(42px,5vw,72px);line-height:1;color:var(--white);margin-bottom:24px}
-.exp-body{font-size:15px;line-height:1.8;color:var(--silver);margin-bottom:40px;max-width:440px}
-.exp-tags{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.exp-tag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;padding:14px 18px;border:1px solid rgba(199,204,210,.12);color:var(--silver);display:flex;align-items:center;gap:10px;transition:border-color .2s,color .2s}
-.exp-tag::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold)}
-.exp-tag:hover{border-color:var(--gold);color:var(--white)}
-
-/* ===== CASINO SECTION ===== */
-#casino{padding:120px 80px;background:var(--black);position:relative;z-index:5;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-#casino::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent)}
-.casino-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
-.casino-title{font-family:var(--bebas);font-size:clamp(52px,6vw,88px);line-height:.92;color:var(--white);margin-bottom:24px}
-.casino-title em{font-style:normal;-webkit-text-stroke:1.5px var(--white);color:transparent}
-.casino-desc{font-size:15px;line-height:1.8;color:var(--silver);margin-bottom:40px}
-.perk-list{display:flex;flex-direction:column;gap:0}
-.perk{display:flex;align-items:flex-start;gap:20px;padding:20px 0;border-bottom:1px solid rgba(199,204,210,.08);cursor:default;transition:background .2s}
-.perk:hover{background:rgba(212,175,55,.04);padding-left:8px;transition:padding-left .3s,background .2s}
-.perk-num{font-family:var(--bebas);font-size:28px;color:var(--gold);min-width:36px;line-height:1}
-.perk-text h4{font-family:var(--bebas);font-size:18px;color:var(--white);letter-spacing:.05em;margin-bottom:4px}
-.perk-text p{font-size:13px;color:var(--silver);line-height:1.6}
-
-#casino-canvas{width:100%;height:320px;display:block;margin-bottom:32px}
-.casino-tiers{display:flex;flex-direction:column;gap:0;border:1px solid rgba(199,204,210,.08)}
-.tier-row{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid rgba(199,204,210,.06);transition:background .2s}
-.tier-row:last-child{border-bottom:none}
-.tier-row:hover{background:rgba(212,175,55,.06)}
-.tier-row:last-child{background:rgba(212,175,55,.08)}
-.tier-name{font-family:var(--bebas);font-size:16px;color:var(--white);letter-spacing:.05em}
-.tier-badge{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;padding:4px 10px;border:1px solid}
-.tier-badge.black{border-color:var(--silver);color:var(--silver)}
-.tier-badge.platinum{border-color:rgba(212,175,55,.6);color:var(--gold)}
-.tier-badge.gold{border-color:var(--gold);color:var(--gold)}
-.tier-badge.open{border-color:var(--gold-light);color:var(--gold-light)}
-.tier-arrow{font-size:16px;color:var(--silver);transition:color .2s,transform .2s}
-.tier-row:hover .tier-arrow{color:var(--gold);transform:translateX(4px)}
-
-/* ===== FLEET SECTION ===== */
-#fleet{position:relative;z-index:5;background:var(--black)}
-
-
-
-
-.fleet-header{text-align:center;margin-bottom:64px}
-.fleet-title{font-family:var(--bebas);font-size:clamp(52px,7vw,96px);color:var(--white);letter-spacing:.04em}
-.fleet-title span{-webkit-text-stroke:2px var(--gold);color:transparent}
-.fleet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
-.fleet-card{background:#181818;padding:40px 32px;position:relative;overflow:hidden;clip-path:inset(0 0 100% 0);transition:clip-path .7s cubic-bezier(.16,1,.3,1),transform .3s;cursor:default}
-.fleet-card.in{clip-path:inset(0 0 0% 0)}
-.fleet-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .4s}
-.fleet-card:hover::after{transform:scaleX(1)}
-.fleet-card:hover{transform:translateY(-4px) scale(1.02)}
-.fleet-card-gradient{height:120px;margin:-40px -32px 32px;background:linear-gradient(135deg,#1a1500,#181818)}
-.fleet-card:nth-child(2) .fleet-card-gradient{background:linear-gradient(135deg,#0a1520,#181818)}
-.fleet-card:nth-child(3) .fleet-card-gradient{background:linear-gradient(135deg,#1a1500,#181818)}
-.fleet-card:nth-child(4) .fleet-card-gradient{background:linear-gradient(135deg,#0a0a20,#181818)}
-.fleet-card:nth-child(5) .fleet-card-gradient{background:linear-gradient(135deg,#0d100a,#181818)}
-.fleet-tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
-.fleet-name{font-family:var(--bebas);font-size:32px;color:var(--white);margin-bottom:8px;letter-spacing:.04em}
-.fleet-detail{font-size:13px;color:var(--silver);line-height:1.6}
-
-/* ===== MANIFESTO ===== */
-#manifesto{position:relative;z-index:5;padding:160px 80px;overflow:hidden;text-align:center}
-.manifesto-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-attachment:fixed}
-.manifesto-bg-overlay{position:absolute;inset:0;background:rgba(10,10,10,.90)}
-.manifesto-watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
-.manifesto-watermark span{font-family:var(--bebas);font-size:clamp(80px,18vw,240px);color:rgba(212,175,55,.04);letter-spacing:.1em;white-space:nowrap;animation:watermarkDrift 20s linear infinite}
-@keyframes watermarkDrift{0%{transform:translateX(-5%) rotate(-3deg)}50%{transform:translateX(5%) rotate(3deg)}100%{transform:translateX(-5%) rotate(-3deg)}}
-.manifesto-inner{position:relative;z-index:2}
-.manifesto-quote{font-family:var(--bebas);font-size:clamp(48px,7vw,100px);line-height:1.05;color:var(--white);margin-bottom:40px;display:flex;flex-wrap:wrap;justify-content:center;gap:.3em}
-.manifesto-quote .mw{display:inline-block;opacity:0;transform:rotateX(90deg);transform-origin:bottom center;transition:opacity .5s,transform .6s cubic-bezier(.16,1,.3,1)}
-.manifesto-quote .mw.in{opacity:1;transform:rotateX(0)}
-/* Accent words in the manifesto get gold */
-.manifesto-quote .mw.accent{color:var(--gold)}
-.manifesto-divider{width:120px;height:1px;background:var(--gold);margin:0 auto 32px}
-.manifesto-sub{font-family:var(--mono);font-size:13px;letter-spacing:.25em;color:var(--silver);text-transform:uppercase;opacity:0;transition:opacity .8s}
-.manifesto-sub.in{opacity:1}
-
-/* ===== PROCESS ===== */
-#process{padding:120px 80px;background:var(--black);position:relative;z-index:5;text-align:center}
-#process::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--silver) 50%,transparent)}
-.process-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--silver);text-transform:uppercase;margin-bottom:16px}
-.process-title{font-family:var(--bebas);font-size:clamp(42px,5vw,72px);color:var(--white);margin-bottom:72px}
-.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;position:relative}
-.process-steps::before{content:'';position:absolute;top:36px;left:calc(12.5% + 36px);right:calc(12.5% + 36px);height:1px;background:linear-gradient(90deg,var(--gold),var(--gold-light));z-index:0}
-.step{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s cubic-bezier(.16,1,.3,1)}
-.step.in{opacity:1;transform:none}
-.step:nth-child(1){transition-delay:.1s}
-.step:nth-child(2){transition-delay:.25s}
-.step:nth-child(3){transition-delay:.4s}
-.step:nth-child(4){transition-delay:.55s}
-.step-circle{width:72px;height:72px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;position:relative;z-index:1;background:var(--black);font-family:var(--bebas);font-size:22px;color:var(--gold)}
-.step-label{font-family:var(--bebas);font-size:22px;color:var(--white);margin-bottom:8px}
-.step-desc{font-size:13px;color:var(--silver);line-height:1.7}
-
-/* ===== SPLIT CTA ===== */
-#split-cta{display:grid;grid-template-columns:1fr 1fr;min-height:480px;position:relative;z-index:5}
-.cta-dark{background:#181818;padding:80px 72px;display:flex;flex-direction:column;justify-content:center;transform:translateX(-60px);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .7s}
-.cta-dark.in{transform:none;opacity:1}
-.cta-dark-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--silver);text-transform:uppercase;margin-bottom:16px}
-.cta-dark-title{font-family:var(--bebas);font-size:clamp(40px,4.5vw,68px);line-height:.96;color:var(--white);margin-bottom:24px}
-.cta-dark-sub{font-size:14px;color:var(--silver);line-height:1.7;margin-bottom:36px}
-.cta-phone{font-family:var(--bebas);font-size:clamp(28px,3vw,44px);color:var(--gold);letter-spacing:.04em}
-
-.cta-gold{background:var(--gold);padding:80px 72px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;transform:translateX(60px);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .7s}
-.cta-gold.in{transform:none;opacity:1}
-.cta-gold::before{content:'';position:absolute;inset:-50%;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,0,0,.07) 10px,rgba(0,0,0,.07) 20px);animation:diagShift 8s linear infinite}
-@keyframes diagShift{0%{transform:translate(0,0)}100%{transform:translate(28px,28px)}}
-.cta-gold-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:rgba(10,10,10,.6);text-transform:uppercase;margin-bottom:16px;position:relative;z-index:1}
-.cta-gold-title{font-family:var(--bebas);font-size:clamp(40px,4.5vw,68px);line-height:.96;color:var(--black);margin-bottom:24px;position:relative;z-index:1}
-.cta-gold-sub{font-size:14px;color:rgba(10,10,10,.7);line-height:1.7;margin-bottom:36px;position:relative;z-index:1}
-.cta-email{font-family:var(--bebas);font-size:clamp(20px,2vw,28px);color:var(--black);letter-spacing:.04em;position:relative;z-index:1;border-bottom:2px solid rgba(10,10,10,.3);padding-bottom:4px}
-
-/* Keep old class name working too */
-.cta-orange{background:var(--gold);padding:80px 72px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;transform:translateX(60px);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .7s}
-.cta-orange.in{transform:none;opacity:1}
-.cta-orange::before{content:'';position:absolute;inset:-50%;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,0,0,.07) 10px,rgba(0,0,0,.07) 20px);animation:diagShift 8s linear infinite}
-.cta-orange-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:rgba(10,10,10,.6);text-transform:uppercase;margin-bottom:16px;position:relative;z-index:1}
-.cta-orange-title{font-family:var(--bebas);font-size:clamp(40px,4.5vw,68px);line-height:.96;color:var(--black);margin-bottom:24px;position:relative;z-index:1}
-.cta-orange-sub{font-size:14px;color:rgba(10,10,10,.7);line-height:1.7;margin-bottom:36px;position:relative;z-index:1}
-.cta-email{font-family:var(--bebas);font-size:clamp(20px,2vw,28px);color:var(--black);letter-spacing:.04em;position:relative;z-index:1;border-bottom:2px solid rgba(10,10,10,.3);padding-bottom:4px}
-
-/* ===== FOOTER ===== */
-footer{background:#060608;padding:80px 80px 48px;position:relative;z-index:5;border-top:1px solid rgba(199,204,210,.08)}
-.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:64px}
-.footer-wordmark{display:block;margin-bottom:16px}
-.footer-tagline{font-size:13px;color:var(--silver);line-height:1.7;max-width:280px}
-.footer-col-title{font-family:var(--mono);font-size:10px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;margin-bottom:20px}
-.footer-links{display:flex;flex-direction:column;gap:12px;list-style:none}
-.footer-links a{font-size:13px;color:var(--silver);transition:color .2s}
-.footer-links a:hover{color:var(--white)}
-.footer-bottom{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(199,204,210,.08);padding-top:32px}
-.footer-copy{font-family:var(--mono);font-size:11px;color:rgba(199,204,210,.3);letter-spacing:.1em}
-.dispatch-badge{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--silver)}
-.dispatch-dot{width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 8px #22C55E;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:900px){
-  .hero-inner{grid-template-columns:1fr;gap:40px;padding:0 40px}
-  .hero-right{display:none}
-  #strip-panels{grid-template-columns:1fr}
-  #experience{grid-template-columns:1fr}
-  .exp-image img{min-height:300px}
-  #casino{grid-template-columns:1fr;padding:80px 40px;gap:60px}
-  
-  .fleet-grid{grid-template-columns:1fr 1fr}
-  #process{padding:80px 40px}
-  .process-steps{grid-template-columns:1fr 1fr;gap:32px}
-  .process-steps::before{display:none}
-  #split-cta{grid-template-columns:1fr}
-  nav{padding:16px 24px}
-  .nav-links{display:none}
-  footer{padding:60px 32px 40px}
-  .footer-top{grid-template-columns:1fr 1fr;gap:32px}
-}
-@media(max-width:600px){
-  .hero-inner{padding:0 24px}
-  .fleet-grid{grid-template-columns:1fr}
-  .footer-top{grid-template-columns:1fr}
-  #manifesto{padding:100px 24px}
-  #casino{padding:60px 24px}
-  .cta-dark,.cta-orange,.cta-gold{padding:60px 32px}
-}
-
-/* ── FLEET VIDEO BANNER ── */
-.fleet-video-wrap{position:relative;width:100%;height:600px;overflow:hidden}
-.fleet-video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
-.fleet-video-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,1) 0%,rgba(10,10,10,0.55) 40%,rgba(10,10,10,0.15) 100%)}
-.fleet-video-badge{position:absolute;bottom:40px;left:56px;display:flex;flex-direction:column;gap:6px}
-.fleet-video-badge .fvb-eye{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold)}
-.fleet-video-badge .fvb-title{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:.9;letter-spacing:.04em;color:var(--white)}
-.fleet-video-badge .fvb-title em{font-style:normal;-webkit-text-stroke:1.5px var(--white);color:transparent}
-
-/* ===== BTN PRIMARY (global) ===== */
-.btn-primary{font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;padding:16px 36px;background:var(--gold);color:var(--black);font-weight:600;transition:background .2s,transform .2s;cursor:pointer;border:none}
-.btn-primary:hover{background:var(--gold-light);transform:translateY(-2px)}
-
-
-/* ══════════════════════════════════════
-   GOLD ACCENT SYSTEM — comprehensive
-   ══════════════════════════════════════ */
-
-/* ── Thin gold top border on EVERY section ── */
-section::before, .casino-section::before, .fleet-section::before,
-.manifesto::before, .process-section::before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 0; left: 10%; right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-/* ── Gold hairline left-border on service feature pills ── */
-.hero-feat {
-  border-left: 2px solid transparent;
-  transition: border-color .3s, background .3s, transform .3s;
-}
-.hero-feat:hover { border-left-color: var(--gold); }
-
-/* ── Stats: gold number, silver label ── */
-.hero-stat-num { color: var(--gold) !important; }
-.hero-stat-unit { color: var(--silver); }
-
-/* ── Stat cards: subtle gold top line on hover ── */
-.hero-stat::before {
-  content: ''; display: block;
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gold); transform: scaleX(0);
-  transition: transform .4s cubic-bezier(.16,1,.3,1);
-  transform-origin: left;
-}
-.hero-stat { position: relative; }
-.hero-stat:hover::before { transform: scaleX(1); }
-
-/* ── Nav: gold bottom border line under active link ── */
-.nav-links a::after {
-  background: var(--gold) !important;
-}
-
-/* ── Nav CTA: gold border on ghost state ── */
-.nav-cta {
-  border: 1px solid var(--gold);
-}
-
-/* ── Gold eyebrow labels everywhere ── */
-.casino-eyebrow, .fleet-eyebrow, .exp-eyebrow,
-.process-eyebrow, .cta-eyebrow, .fleet-tag,
-[class*="-eyebrow"], [class*="-kicker"],
-.hero-kicker { color: var(--gold) !important; }
-
-/* ── Gold left accent bar on perk items ── */
-.perk-item {
-  border-left: 2px solid transparent;
-  padding-left: 16px;
-  transition: border-color .3s;
-}
-.perk-item:hover { border-left-color: var(--gold); }
-.perk-num { color: rgba(212,175,55,0.25) !important; transition: color .3s; }
-.perk-item:hover .perk-num { color: rgba(212,175,55,0.6) !important; }
-
-/* ── Gold vertical divider between stats ── */
-.hero-stat-row { gap: 1px; }
-.hero-stat + .hero-stat {
-  border-left: 1px solid rgba(212,175,55,0.15);
-}
-
-/* ── Casino tier table: gold left-border on hover ── */
-.tier-row {
-  border-left: 2px solid transparent !important;
-  padding-left: 16px;
-  transition: border-color .3s, background .3s;
-}
-.tier-row:hover { border-left-color: var(--gold) !important; }
-
-/* ── Fleet section title: gold accent on italic/outline word ── */
-.fleet-title em { 
-  -webkit-text-stroke-color: var(--gold) !important;
-  color: transparent;
-}
-
-/* ── Manifesto: bigger quote, gold accent words ── */
-.manifesto-quote { font-size: clamp(52px, 7vw, 112px) !important; }
-.manifesto-quote .accent { color: var(--gold) !important; }
-.manifesto-line {
-  background: linear-gradient(90deg, transparent, var(--gold), transparent) !important;
-}
-
-/* ── Process: gold connector line ── */
-.process-track::before {
-  background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent) !important;
-  opacity: 0.4;
-}
-.step-circle {
-  box-shadow: 0 0 0 0 rgba(212,175,55,0);
-  transition: box-shadow .4s, background .4s;
-}
-.process-step:hover .step-circle {
-  box-shadow: 0 0 30px rgba(212,175,55,0.25), inset 0 0 20px rgba(212,175,55,0.05);
-}
-
-/* ── Footer: gold hairline above ── */
-footer {
-  border-top: 1px solid rgba(212,175,55,0.3) !important;
-}
-.footer-col h4 { color: var(--gold) !important; }
-.footer-col ul li a:hover { color: var(--gold) !important; }
-.dispatch-badge { color: var(--gold) !important; }
-
-/* ── Gold shimmer on CTA buttons ── */
-.btn-primary, .nav-cta, .cta-btn {
-  position: relative; overflow: hidden;
-}
-.btn-primary::after, .nav-cta::after, .cta-btn::after {
-  content: '';
-  position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transform: skewX(-20deg);
-  transition: left .5s;
-}
-.btn-primary:hover::after, .nav-cta:hover::after, .cta-btn:hover::after {
-  left: 150%;
-}
-
-/* ── Strip panels: gold accent number ── */
-.sp-num { color: rgba(212,175,55,0.06) !important; }
-.strip-panel:hover .sp-num { color: rgba(212,175,55,0.12) !important; }
-
-/* ── Experience section feature tags: gold border ── */
-.exp-tag {
-  border: 1px solid rgba(212,175,55,0.3) !important;
-  transition: border-color .3s, background .3s;
-}
-.exp-tag:hover {
-  border-color: var(--gold) !important;
-  background: rgba(212,175,55,0.06) !important;
-}
-
-/* ── Loader: gold corner ornaments bigger ── */
-.corner-ornament { font-size: 14px !important; opacity: 0 !important; }
-.corner-ornament.visible-c { opacity: 0.8 !important; }
-
-/* ── Scroll hint line: gold ── */
-.scroll-line, [class*="scroll-line"] {
-  background: linear-gradient(to bottom, var(--gold), transparent) !important;
-}
-
-/* ── Gold glow on logo in nav on hover ── */
-nav img:hover {
-  filter: drop-shadow(0 0 14px rgba(212,175,55,0.8)) !important;
-  transition: filter .3s;
-}
-
 </style>
 </head>
 <body>
-
-<div id="tc-loader">
-  <!-- Fog layers -->
-  <!-- Gold border frame that draws itself -->
-  
-  <!-- Canvas fog — real particle smoke system -->
-  <canvas id="fog-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:1;"></canvas>
-  <div class="loader-frame">
-    <div class="frame-line frame-top"></div>
-    <div class="frame-line frame-bottom"></div>
-    <div class="frame-line frame-left"></div>
-    <div class="frame-line frame-right"></div>
-  </div>
-  <!-- Center content -->
-  <div class="loader-center">
-    <!-- TC Emblem/Badge logo — circular seal with crown -->
-    <div class="loader-emblem">
-      <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260701_084615_43cb1099-fb41-4d47-baee-e11e688d5c4b.png" 
-           alt="The Chauffeurs" 
-           class="loader-seal-img" style="width:220px;height:220px;object-fit:contain;filter:drop-shadow(0 0 40px rgba(212,175,55,0.7)) drop-shadow(0 0 80px rgba(212,175,55,0.3))">
-      <!-- Gold glow ring that pulses behind the seal -->
-      <div class="loader-seal-glow"></div>
-    </div>
-    <!-- Brand name reveal below seal -->
-    <div class="loader-brand">
-      <div class="loader-brand-line"></div>
-      <div class="loader-tagline">LAS VEGAS · EST. 2024</div>
-      <div class="loader-brand-line"></div>
-    </div>
-    <!-- Loading progress bar -->
-    <div class="loader-progress-wrap">
-      <div class="loader-progress-bar"></div>
-    </div>
-    <div class="loader-progress-text">PREPARING YOUR EXPERIENCE</div>
-  </div>
-  <!-- Corner ornaments -->
-  <div class="corner-ornament corner-tl">◆</div>
-  <div class="corner-ornament corner-tr">◆</div>
-  <div class="corner-ornament corner-bl">◆</div>
-  <div class="corner-ornament corner-br">◆</div>
-</div>
-
-<!-- CURSOR -->
 <div id="cursor"></div>
 <div id="cursor-dot"></div>
-
-<!-- THREE.JS CANVAS -->
-
-
-<!-- NAV -->
-<nav id="main-nav">
-  <ul class="nav-links">
-    <li><a href="#strip-panels">Services</a></li>
-    <li><a href="#experience">Experience</a></li>
-    <li><a href="#casino">Casino</a></li>
-    <li><a href="#fleet">Fleet</a></li>
-    <li><a href="#process">Process</a></li>
-  </ul>
-  <a href="#" class="nav-logo">
-    <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260701_084539_63b333de-b8ac-4d73-8751-2a7a5b481e7b.png" alt="The Chauffeurs" height="77" style="height:77px;width:auto;object-fit:contain;;filter:drop-shadow(0 0 8px rgba(212,175,55,0.5))">
-  </a>
-  <a href="tel:+170****0100" class="nav-cta">Book Now</a>
-</nav>
-
-<!-- HERO -->
-<section id="hero" style="background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011225_6b4a60df-c57a-4d2c-a8e9-7156892bf217.png');background-size:cover;background-position:center;">
-  <video id="hero-video" autoplay muted loop playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011225_6b4a60df-c57a-4d2c-a8e9-7156892bf217.png" src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011521_6a188bb5-a64b-4099-b052-a48392719aeb.mp4"></video>
-  <div id="hero-overlay"></div>
-  <div class="hero-side-label left">The Strip · Ground Command · Est. 2024</div>
-  <div class="hero-side-label right">Casino Contracts · Private · Corporate</div>
-  <div class="hero-inner">
-    <div class="hero-left">
-      <div class="hero-kicker" id="hero-kicker"><span id="kicker-span">Las Vegas Premium Transport</span></div>
-      <h1 class="hero-headline">
-        <div class="word"><span>THE</span></div>
-        <div class="word"><span>CHAUFFEURS</span></div>
-        <div class="word"><span>OF VEGAS</span></div>
-      </h1>
-      <p class="hero-desc" id="hero-desc">The Strip's most trusted ground operation. Casino-contracted, event-ready, and precision-dispatched — 24 hours a day, 365 days a year.</p>
-      <div class="hero-ctas" id="hero-ctas">
-        <a href="tel:+170****0100" class="cta-primary">Book a Ride</a>
-        <a href="#casino" class="cta-secondary">Casino Partners</a>
-      </div>
-    </div>
-    <div class="hero-right">
-      <div class="hero-stats">
-        <div class="stat-item hero-stat"><span class="stat-num hero-stat-num" data-count="47">0</span><span class="stat-label">Vehicles</span></div>
-        <div class="stat-item hero-stat"><span class="stat-num hero-stat-num" data-count="14">0</span><span class="stat-label">Casino Partners</span></div>
-        <div class="stat-item hero-stat"><span class="stat-num hero-stat-num" data-text="24/7">24/7</span><span class="stat-label">Dispatch</span></div>
-      </div>
-      <div class="feature-pills">
-        <div class="pill hero-feat">Casino Shuttle Contracts</div>
-        <div class="pill hero-feat">Private Chauffeur</div>
-        <div class="pill hero-feat">Airport Concierge</div>
-        <div class="pill hero-feat">Event &amp; Fight Night Fleet</div>
-        <div class="pill hero-feat">Corporate &amp; Executive</div>
-      </div>
+<div class="video-wrap">
+  <video id="introVideo" preload="auto" playsinline loop poster="https://cdn.higgsfield.ai/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260713_224830_bd35d856-b927-4f15-af46-5536f3fc4a22_thumbnail.webp">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260713_224830_bd35d856-b927-4f15-af46-5536f3fc4a22.mp4" type="video/mp4">
+  </video>
+</div>
+<div class="light-leak"></div>
+<div class="fog-container">
+  <div class="fog-layer fog-1"></div><div class="fog-layer fog-2"></div><div class="fog-layer fog-3"></div><div class="fog-layer fog-4"></div>
+  <div class="fog-wisp"></div><div class="fog-wisp"></div><div class="fog-wisp"></div><div class="fog-wisp"></div><div class="fog-wisp"></div>
+</div>
+<div class="vignette"></div>
+<div class="scan-lines"></div>
+<div class="film-grain"></div>
+<div class="letterbox top"></div>
+<div class="letterbox bottom"></div>
+<div class="corner-marker cm-tl"></div>
+<div class="corner-marker cm-tr"></div>
+<div class="corner-marker cm-bl"></div>
+<div class="corner-marker cm-br"></div>
+<div class="center-stack">
+  <div class="logo-wrap" id="logoWrap">
+    <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260701_084615_43cb1099-fb41-4d47-baee-e11e688d5c4b.png" alt="TC" class="tc-logo" id="tcLogo">
+  </div>
+  <div class="brand-name" id="brandName">THE <span class="accent-gold">CHAUFFEURS</span></div>
+  <div class="brand-tagline" id="brandTagline">Luxury Transportation &middot; Las Vegas</div>
+  <div class="brand-spectrum" id="brandSpectrum"></div>
+  <div class="loading-section" id="loadingSection">
+    <div class="loading-track"><div class="loading-fill" id="loadingFill"></div></div>
+    <div class="loading-meta">
+      <span class="loading-label" id="loadingLabel">Preparing your arrival</span>
+      <span class="loading-divider"></span>
+      <span class="loading-percent" id="loadingPercent">0%</span>
     </div>
   </div>
-  <div class="scroll-hint">Scroll to explore</div>
-</section>
-
-<!-- STRIP PANELS -->
-<section id="strip-panels">
-  <div class="panel" style="background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011227_d454c654-a2a6-40f5-b2c1-d1e84250508a.png')">
-    <div class="panel-bg-overlay"></div>
-    <div class="panel-content">
-      <div class="panel-eyebrow">Contract Programs</div>
-      <h2 class="panel-title">Casino Contract Programs</h2>
-      <p class="panel-body">Seamless VIP shuttle logistics for casino floors. White-glove transfers from McCarran, hotel-to-hotel moves, and round-the-clock high-roller service.</p>
-      <a href="#casino" class="panel-link">View Casino Services</a>
-    </div>
+  <div class="enter-btn-wrap" id="enterBtnWrap">
+    <div class="glow-effect breathe"></div>
+    <div class="glow-effect colorShift"></div>
+    <a href="home.html" class="enter-btn" id="enterBtn">Enter Site</a>
   </div>
-  <div class="panel gold-sweep" style="background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011225_6b4a60df-c57a-4d2c-a8e9-7156892bf217.png')">
-    <div class="panel-bg-overlay"></div>
-    <div class="panel-content">
-      <div class="panel-eyebrow">Private Service</div>
-      <h2 class="panel-title">Private Chauffeur Service</h2>
-      <p class="panel-body">Your personal driver. Your Strip. Bespoke scheduling, meet-and-greet arrivals, complimentary amenities — every ride tailored to your preference.</p>
-      <a href="#experience" class="panel-link">Explore the Experience</a>
-    </div>
-  </div>
-  <div class="panel chrome-sweep" style="background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011226_93ecb91d-56a7-4929-ab2b-409e5788e9a3.png')">
-    <div class="panel-bg-overlay"></div>
-    <div class="panel-content">
-      <div class="panel-eyebrow">Corporate Tier</div>
-      <h2 class="panel-title">Executive &amp; Corporate</h2>
-      <p class="panel-body">Board-level discretion. Roadshow logistics, incentive-trip fleet management, and dedicated account teams for Fortune-500 corporate clients.</p>
-      <a href="#fleet" class="panel-link">See the Fleet</a>
-    </div>
-  </div>
-</section>
-
-<!-- EXPERIENCE SECTION -->
-<section id="experience">
-  <div class="exp-image" id="exp-img-panel">
-    <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011226_e678e86a-e6e1-4611-8f52-8c1b26df705f.png" alt="Escalade interior — diamond-quilted leather, gold ambient lighting"/>
-  </div>
-  <div class="exp-right" id="exp-right-panel">
-    <div class="exp-eyebrow">Inside Every Ride</div>
-    <h2 class="exp-title">A CABIN BUILT FOR THE STRIP</h2>
-    <p class="exp-body">Diamond-quilted leather, ambient gold lighting, chilled refreshments, privacy glass. Every transfer is an experience — not just a ride.</p>
-    <div class="exp-tags">
-      <div class="exp-tag">Premium Leather</div>
-      <div class="exp-tag">Ambient Lighting</div>
-      <div class="exp-tag">Privacy Glass</div>
-      <div class="exp-tag">Chilled Bar</div>
-    </div>
-  </div>
-</section>
-
-<!-- CASINO SECTION -->
-<section id="casino">
-  <div class="casino-left">
-    <div class="casino-eyebrow">Casino Division</div>
-    <h2 class="casino-title">Built for<br/><em>The House</em></h2>
-    <p class="casino-desc">From Bellagio high-roller transfers to MGM corporate moves — our casino contracts are engineered for precision, discretion, and elite hospitality standards.</p>
-    <div class="perk-list">
-      <div class="perk">
-        <span class="perk-num">01</span>
-        <div class="perk-text"><h4>Dedicated Dispatch Line</h4><p>24/7 priority line for casino hosts. Immediate response, no hold times.</p></div>
-      </div>
-      <div class="perk">
-        <span class="perk-num">02</span>
-        <div class="perk-text"><h4>Flight Tracking</h4><p>Live FAA feeds sync every vehicle to arrival gates — your guests never wait.</p></div>
-      </div>
-      <div class="perk">
-        <span class="perk-num">03</span>
-        <div class="perk-text"><h4>Branded Livery Options</h4><p>Property-specific signage and custom amenity kits for in-cabin branding.</p></div>
-      </div>
-      <div class="perk">
-        <span class="perk-num">04</span>
-        <div class="perk-text"><h4>Monthly Billing & Reporting</h4><p>Consolidated invoicing with detailed trip logs for property accounting teams.</p></div>
-      </div>
-    </div>
-  </div>
-  <div class="casino-right">
-    <canvas id="casino-canvas"></canvas>
-    <div class="casino-tiers">
-      <div class="tier-row"><span class="tier-name">Bellagio</span><span class="tier-badge black">Black Card Tier</span><span class="tier-arrow">→</span></div>
-      <div class="tier-row"><span class="tier-name">MGM Grand</span><span class="tier-badge platinum">Platinum Tier</span><span class="tier-arrow">→</span></div>
-      <div class="tier-row"><span class="tier-name">Wynn Las Vegas</span><span class="tier-badge black">Black Card Tier</span><span class="tier-arrow">→</span></div>
-      <div class="tier-row"><span class="tier-name">Caesars Palace</span><span class="tier-badge gold">Gold Tier</span><span class="tier-arrow">→</span></div>
-      <div class="tier-row"><span class="tier-name">The Venetian</span><span class="tier-badge platinum">Platinum Tier</span><span class="tier-arrow">→</span></div>
-      <div class="tier-row"><span class="tier-name">Your Property</span><span class="tier-badge open">Open Inquiry</span><span class="tier-arrow">→</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- FLEET SECTION -->
-<section id="fleet">
-  <div class="fleet-video-wrap">
-    <video autoplay muted loop playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011226_93ecb91d-56a7-4929-ab2b-409e5788e9a3.png">
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_012649_7f6088af-34f6-4e3f-9071-2c7f0a8e3694.mp4" type="video/mp4">
-    </video>
-    <div class="fleet-video-overlay"></div>
-    <div class="fleet-video-badge reveal">
-      <span class="fvb-eye">The Fleet</span>
-      <div class="fvb-title">The<br>Fleet.<br><em>Curated.</em></div>
-    </div>
-  </div>
-  </div>
-</section>
-
-<!-- MANIFESTO -->
-<section id="manifesto">
-  <div class="manifesto-bg" style="background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011227_d454c654-a2a6-40f5-b2c1-d1e84250508a.png')"></div>
-  <div class="manifesto-bg-overlay"></div>
-  <div class="manifesto-watermark"><span>THE STRIP</span></div>
-  <div class="manifesto-inner">
-    <div class="manifesto-quote" id="manifesto-quote">
-      <!-- words injected by JS -->
-    </div>
-    <div class="manifesto-divider"></div>
-    <p class="manifesto-sub" id="manifesto-sub">Las Vegas Strip — Ground Command — 24/7 Dispatch Active</p>
-  </div>
-</section>
-
-<!-- PROCESS -->
-<section id="process">
-  <div class="process-eyebrow">How It Works</div>
-  <h2 class="process-title">PRECISION FROM FIRST CONTACT</h2>
-  <div class="process-steps">
-    <div class="step">
-      <div class="step-circle">I</div>
-      <div class="step-label">Book</div>
-      <p class="step-desc">Schedule online, by phone, or through your casino host. Instant confirmation within 90 seconds.</p>
-    </div>
-    <div class="step">
-      <div class="step-circle">II</div>
-      <div class="step-label">Meet</div>
-      <p class="step-desc">Your chauffeur arrives early, monitors your flight, and meets you in the terminal — name board in hand.</p>
-    </div>
-    <div class="step">
-      <div class="step-circle">III</div>
-      <div class="step-label">Arrive</div>
-      <p class="step-desc">Glide to your destination in silence and style. Real-time ETA, preferred route, zero detours.</p>
-    </div>
-    <div class="step">
-      <div class="step-circle">IV</div>
-      <div class="step-label">Return</div>
-      <p class="step-desc">Your return ride is pre-staged. One call, and we're already moving before you hang up.</p>
-    </div>
-  </div>
-</section>
-
-<!-- SPLIT CTA -->
-<section id="split-cta">
-  <div class="cta-dark" id="cta-left">
-    <div class="cta-dark-eyebrow">For Travelers</div>
-    <h2 class="cta-dark-title">YOUR STRIP.<br/>YOUR SCHEDULE.</h2>
-    <p class="cta-dark-sub">The Strip waits for no one — but your chauffeur does. Book your private ride in under 60 seconds.</p>
-    <a href="tel:+170****0100" class="cta-phone">+1 (702) 555-0100</a>
-  </div>
-  <div class="cta-orange" id="cta-right">
-    <div class="cta-orange-eyebrow">For Casino Partners</div>
-    <h2 class="cta-orange-title">COMMAND-LEVEL CONTRACTS.</h2>
-    <p class="cta-orange-sub">Join 14 Strip properties that trust us with their most important guests. White-label fleet programs available.</p>
-    <a href="mailto:contracts@thechauffeurs.com" class="cta-email">contracts@thechauffeurs.com</a>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-top">
-    <div>
-      <div class="footer-wordmark" id="footer-wordmark">
-        <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260701_084615_43cb1099-fb41-4d47-baee-e11e688d5c4b.png" alt="The Chauffeurs" height="80" style="height:80px;width:auto;object-fit:contain;margin-bottom:16px;">
-      </div>
-      <p class="footer-tagline">Las Vegas Strip ground command. Casino-contracted, precision-dispatched, 24/7 operational since 2024.</p>
-    </div>
-    <div>
-      <div class="footer-col-title">Services</div>
-      <ul class="footer-links">
-        <li><a href="#">Casino Contracts</a></li>
-        <li><a href="#">Private Chauffeur</a></li>
-        <li><a href="#">Airport Transfers</a></li>
-        <li><a href="#">Event Fleet</a></li>
-        <li><a href="#">Corporate</a></li>
-      </ul>
-    </div>
-    <div>
-      <div class="footer-col-title">Fleet</div>
-      <ul class="footer-links">
-        <li><a href="#">Escalade ESV</a></li>
-        <li><a href="#">Mercedes S-Class</a></li>
-        <li><a href="#">Rolls-Royce Ghost</a></li>
-        <li><a href="#">Sprinter Executive</a></li>
-        <li><a href="#">Limo Bus Ultra</a></li>
-      </ul>
-    </div>
-    <div>
-      <div class="footer-col-title">Contact</div>
-      <ul class="footer-links">
-        <li><a href="tel:+170****0100">+1 (702) 555-0100</a></li>
-        <li><a href="mailto:dispatch@thechauffeurs.com">dispatch@thechauffeurs.com</a></li>
-        <li><a href="#">Las Vegas, NV 89109</a></li>
-        <li><a href="#">Casino Partnerships</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span class="footer-copy">© 2024 The Chauffeurs LLC — All Rights Reserved</span>
-    <div class="dispatch-badge"><div class="dispatch-dot"></div>Dispatch Active — 24/7</div>
-  </div>
-</footer>
-
+</div>
+<div class="skip-btn-wrap" id="skipBtnWrap">
+  <div class="glow-effect breathe"></div>
+  <button class="skip-btn" id="skipBtn">Skip Intro &rarr;</button>
+</div>
+<div class="unmute-prompt" id="unmutePrompt"><span class="pulse-dot"></span> Click to enable sound</div>
+<div class="fade-to-black" id="fadeToBlack"></div>
 <script>
-/* ===== CURSOR ===== */
-const cursor=document.getElementById('cursor');
-const dot=document.getElementById('cursor-dot');
-let mx=window.innerWidth/2,my=window.innerHeight/2,cx=mx,cy=my;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px'});
-document.querySelectorAll('a,button,.perk,.tier-row,.fleet-card,.exp-tag').forEach(el=>{
-  el.addEventListener('mouseenter',()=>cursor.classList.add('hover'));
-  el.addEventListener('mouseleave',()=>cursor.classList.remove('hover'));
-});
-(function lerpCursor(){cx+=(mx-cx)*.12;cy+=(my-cy)*.12;cursor.style.left=cx+'px';cursor.style.top=cy+'px';requestAnimationFrame(lerpCursor)})();
-
-/* ===== THEATRICAL LOADER ===== */
-/* ══════════════════════════════════════
-   CANVAS FOG — Real particle smoke system
-   ══════════════════════════════════════ */
-(function initFog() {
-  var canvas = document.getElementById('fog-canvas');
-  if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-
-  function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  // Fog particle constructor
-  function FogParticle() {
-    this.reset(true);
-  }
-  FogParticle.prototype.reset = function(initial) {
-    this.x     = Math.random() * canvas.width;
-    this.y     = initial ? Math.random() * canvas.height : canvas.height + 80;
-    this.r     = 120 + Math.random() * 220;      // large soft blobs
-    this.alpha = 0;
-    this.targetAlpha = 0.04 + Math.random() * 0.09;
-    this.dx    = (Math.random() - 0.5) * 0.3;
-    this.dy    = -(0.15 + Math.random() * 0.25); // drift upward slowly
-    this.dAlpha = 0.0008 + Math.random() * 0.001;
-    this.life  = 0;
-    this.maxLife = 300 + Math.random() * 400;
-    // colour: alternate gold-tinted and silver-tinted fog
-    this.isGold = Math.random() > 0.5;
-  };
-  FogParticle.prototype.update = function() {
-    this.x += this.dx;
-    this.y += this.dy;
-    this.life++;
-    // Fade in then fade out over lifetime
-    if (this.life < 60) {
-      this.alpha = Math.min(this.alpha + this.dAlpha * 2, this.targetAlpha);
-    } else if (this.life > this.maxLife - 80) {
-      this.alpha = Math.max(this.alpha - this.dAlpha * 1.5, 0);
-    }
-    if (this.life >= this.maxLife) this.reset(false);
-  };
-  FogParticle.prototype.draw = function() {
-    var grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r);
-    if (this.isGold) {
-      grd.addColorStop(0, 'rgba(212,175,55,' + this.alpha + ')');
-      grd.addColorStop(0.4, 'rgba(180,148,40,' + (this.alpha * 0.5) + ')');
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-    } else {
-      grd.addColorStop(0, 'rgba(199,204,210,' + this.alpha + ')');
-      grd.addColorStop(0.4, 'rgba(160,168,175,' + (this.alpha * 0.5) + ')');
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-    }
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
-    ctx.fill();
-  };
-
-  // Spawn 28 fog particles
-  var particles = [];
-  for (var i = 0; i < 28; i++) particles.push(new FogParticle());
-
-  var fogRunning = true;
-  function fogLoop() {
-    if (!fogRunning) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var i = 0; i < particles.length; i++) {
-      particles[i].update();
-      particles[i].draw();
-    }
-    requestAnimationFrame(fogLoop);
-  }
-  fogLoop();
-
-  // Stop fog when loader exits
-  window._stopFog = function() { fogRunning = false; ctx.clearRect(0, 0, canvas.width, canvas.height); };
-})();
-
-/* ══════════════════════════════════════
-   THEATRICAL LOADER EXIT
-   ══════════════════════════════════════ */
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    var loader = document.getElementById('tc-loader');
-    if (loader) {
-      loader.classList.add('exit');
-      if (window._stopFog) window._stopFog();
-      setTimeout(function() {
-        loader.style.display = 'none';
-        triggerHeroAnimations();
-      }, 1200);
-    } else {
-      triggerHeroAnimations();
-    }
-  }, 4200);
-});
-
-function triggerHeroAnimations() {
-  var kicker = document.getElementById('hero-kicker');
-  if (kicker) kicker.classList.add('visible');
-
-  document.querySelectorAll('.hero-headline .word, .hero-title .word').forEach(function(w, i) {
-    setTimeout(function() { w.classList.add('visible'); }, i * 150);
-  });
-
-  setTimeout(function() {
-    var desc = document.getElementById('hero-desc');
-    if (desc) desc.classList.add('visible');
-  }, 600);
-
-  setTimeout(function() {
-    var ctas = document.getElementById('hero-ctas');
-    if (ctas) ctas.classList.add('visible');
-  }, 750);
-
-  document.querySelectorAll('.hero-stat, .hero-feat').forEach(function(el) {
-    el.classList.add('visible');
-  });
-
-  document.querySelectorAll('.hero-stat-num, [data-count]').forEach(function(el) {
-    var target = parseInt(el.dataset.count) || 0;
-    var text   = el.dataset.text || null;
-    if (text) { el.textContent = text; return; }
-    if (!target) return;
-    var start = null, dur = 1800;
-    function tick(ts) {
-      if (!start) start = ts;
-      var prog = Math.min((ts - start) / dur, 1);
-      var ease = 1 - Math.pow(1 - prog, 3);
-      el.textContent = Math.round(ease * target);
-      if (prog < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  });
+const video=document.getElementById('introVideo'),skipBtn=document.getElementById('skipBtn'),unmuteP=document.getElementById('unmutePrompt'),logoWrap=document.getElementById('logoWrap'),brandName=document.getElementById('brandName'),brandTag=document.getElementById('brandTagline'),brandSpec=document.getElementById('brandSpectrum'),loadSect=document.getElementById('loadingSection'),loadFill=document.getElementById('loadingFill'),loadPct=document.getElementById('loadingPercent'),loadLabel=document.getElementById('loadingLabel'),enterWrap=document.getElementById('enterBtnWrap'),enterBtn=document.getElementById('enterBtn'),fadeBlack=document.getElementById('fadeToBlack'),corners=document.querySelectorAll('.corner-marker'),cursor=document.getElementById('cursor'),cursorDot=document.getElementById('cursor-dot');
+let finished=false,progress=0;
+document.addEventListener('mousemove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';cursorDot.style.left=e.clientX+'px';cursorDot.style.top=e.clientY+'px'});
+document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.classList.add('hovering'));el.addEventListener('mouseleave',()=>cursor.classList.remove('hovering'))});
+function revealSequence(){
+  setTimeout(()=>{logoWrap.classList.add('revealed');logoWrap.classList.add('glitch');setTimeout(()=>logoWrap.classList.remove('glitch'),700)},200);
+  setTimeout(()=>brandName.classList.add('revealed'),800);
+  setTimeout(()=>brandTag.classList.add('revealed'),1100);
+  setTimeout(()=>brandSpec.classList.add('drawn'),1400);
+  setTimeout(()=>loadSect.classList.add('revealed'),1600);
+  setTimeout(()=>corners.forEach(c=>c.classList.add('revealed')),1800);
 }
-
-/* ===== NAV SCROLL ===== */
-const nav=document.getElementById('main-nav');
-window.addEventListener('scroll',()=>{
-  nav.classList.toggle('scrolled',window.scrollY>60);
-  // Footer wordmark letter-spacing
-  const footer=document.querySelector('footer');
-  const fw=document.getElementById('footer-wordmark');
-  const fRect=footer.getBoundingClientRect();
-  if(fRect.top<window.innerHeight){
-    const progress=Math.min(1,(window.innerHeight-fRect.top)/(window.innerHeight));
-    // footer wordmark is now an img — no letter-spacing needed
+function startLoading(){
+  const minDuration=4200,startTime=Date.now();
+  function tick(){
+    const elapsed=Date.now()-startTime,timeRatio=Math.min(elapsed/minDuration,1);
+    let bufferRatio=0;
+    if(video.buffered.length>0&&video.duration>0)bufferRatio=video.buffered.end(0)/video.duration;
+    progress=Math.min(timeRatio,Math.max(bufferRatio,timeRatio*.85))*100;
+    if(timeRatio>.85)progress=Math.max(progress,85+(timeRatio-.85)/.15*15);
+    progress=Math.min(progress,100);
+    loadFill.style.width=progress+'%';loadPct.textContent=Math.floor(progress)+'%';
+    if(progress>=100){loadLabel.textContent='Ready';loadLabel.classList.add('ready');setTimeout(showEnter,600)}
+    else requestAnimationFrame(tick);
   }
-  // Fleet banner parallax
-  const banner=document.getElementById('fleet-banner-img');
-  if(banner){
-    const bRect=banner.getBoundingClientRect();
-    const parallax=(bRect.top/(window.innerHeight+bRect.height)-.5)*80;
-    banner.style.transform=`translateY(${parallax}px)`;
-  }
-},{passive:true});
-
-/* ===== INTERSECTION OBSERVER ===== */
-const ioOpts={threshold:.18};
-const io=new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
-},ioOpts);
-document.querySelectorAll('.step,.fleet-card').forEach(el=>io.observe(el));
-
-// Experience section
-const expOpts={threshold:.2};
-const expIo=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');expIo.unobserve(e.target)}});
-},expOpts);
-document.querySelectorAll('#exp-img-panel,#exp-right-panel').forEach(el=>expIo.observe(el));
-
-// Split CTA
-const ctaIo=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ctaIo.unobserve(e.target)}});
-},{threshold:.2});
-document.querySelectorAll('#cta-left,#cta-right').forEach(el=>ctaIo.observe(el));
-
-/* ===== MANIFESTO WORD REVEAL ===== */
-const quote="We don't just drive. We command the Strip.";
-const accentWords=['command','Strip'];
-const mqDiv=document.getElementById('manifesto-quote');
-quote.split(' ').forEach((word,i)=>{
-  const span=document.createElement('span');
-  span.className='mw';
-  // strip punctuation for comparison
-  const clean=word.replace(/[^a-zA-Z]/g,'');
-  if(accentWords.includes(clean)) span.classList.add('accent');
-  span.textContent=word;
-  span.style.transitionDelay=(i*0.07)+'s';
-  mqDiv.appendChild(span);
-});
-const maniIo=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      document.querySelectorAll('.mw').forEach(w=>w.classList.add('in'));
-      document.getElementById('manifesto-sub').classList.add('in');
-      maniIo.unobserve(e.target);
-    }
-  });
-},{threshold:.3});
-maniIo.observe(document.getElementById('manifesto'));
-
-/* ===== HERO THREE.JS ===== */
-
-
-/* ===== CASINO THREE.JS ===== */
-(function initCasinoGLB(){
-  var canvas = document.getElementById('casino-canvas');
-  if(!canvas) return;
-  var w = canvas.offsetWidth||420, h = canvas.offsetHeight||500;
-
-  var renderer = new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.setSize(w,h);
-  renderer.setClearColor(0x000000,0);
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.6;
-
-  var scene  = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(42, w/h, 0.01, 1000);
-  camera.position.set(0, 0.2, 3.4);
-  camera.lookAt(0,0,0);
-
-  /* Lighting */
-  scene.add(new THREE.AmbientLight(0x222222, 2.0));
-  var key = new THREE.DirectionalLight(0xD4AF37, 3.0);
-  key.position.set(3,5,3); scene.add(key);
-  var fill = new THREE.DirectionalLight(0xC7CCD2, 1.0);
-  fill.position.set(-4,2,-2); scene.add(fill);
-  var rim = new THREE.DirectionalLight(0xFFFFFF, 0.8);
-  rim.position.set(0,3,-4); scene.add(rim);
-  var orb = new THREE.PointLight(0xD4AF37, 2.0, 10);
-  scene.add(orb);
-
-  /* Particles */
-  var pPos = new Float32Array(200*3);
-  for(var i=0;i<200;i++){
-    pPos[i*3]=(Math.random()-.5)*6;
-    pPos[i*3+1]=(Math.random()-.5)*6;
-    pPos[i*3+2]=(Math.random()-.5)*4;
-  }
-  var pGeo=new THREE.BufferGeometry();
-  pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
-  scene.add(new THREE.Points(pGeo,new THREE.PointsMaterial({
-    color:0xD4AF37,size:0.022,transparent:true,opacity:0.5,
-    blending:THREE.AdditiveBlending,depthWrite:false
-  })));
-
-  /* Gold rings beneath model */
-  function makeRing(r1,r2,col,op){
-    var m=new THREE.Mesh(
-      new THREE.RingGeometry(r1,r2,64),
-      new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide,transparent:true,opacity:op})
-    );
-    m.rotation.x=-Math.PI/2; m.position.y=-1.1;
-    return m;
-  }
-  var ring1=makeRing(0.55,0.58,0xD4AF37,0.2);
-  var ring2=makeRing(0.78,0.80,0xC7CCD2,0.1);
-  var ring3=makeRing(1.0,1.01,0xD4AF37,0.06);
-  scene.add(ring1); scene.add(ring2); scene.add(ring3);
-
-  /* Load GLB */
-  var model=null, mixer=null;
-  if(typeof THREE.GLTFLoader !== 'undefined'){
-    var loader=new THREE.GLTFLoader();
-    loader.load('https://d2ol7oe51mr4n9.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/da3263fd-c937-4e50-a8f9-292b62a15516.glb',
-      function(gltf){
-        model=gltf.scene;
-        var box=new THREE.Box3().setFromObject(model);
-        var ctr=box.getCenter(new THREE.Vector3());
-        var sz=box.getSize(new THREE.Vector3());
-        var sc=1.9/Math.max(sz.x,sz.y,sz.z);
-        model.scale.setScalar(sc);
-        model.position.copy(ctr.multiplyScalar(-sc));
-        model.traverse(function(c){
-          if(c.isMesh && c.material){
-            c.material.envMapIntensity=1.5;
-            c.material.needsUpdate=true;
-          }
-        });
-        scene.add(model);
-        if(gltf.animations&&gltf.animations.length){
-          mixer=new THREE.AnimationMixer(model);
-          gltf.animations.forEach(function(clip){mixer.clipAction(clip).play();});
-        }
-      },
-      null,
-      function(e){console.warn('GLB error:',e);}
-    );
-  }
-
-  /* Resize */
-  var ro=new ResizeObserver(function(){
-    var nw=canvas.offsetWidth,nh=canvas.offsetHeight;
-    if(!nw||!nh)return;
-    renderer.setSize(nw,nh);
-    camera.aspect=nw/nh;
-    camera.updateProjectionMatrix();
-  });
-  ro.observe(canvas);
-
-  /* Animate */
-  var clock=new THREE.Clock(), t=0;
-  (function loop(){
-    requestAnimationFrame(loop);
-    var d=clock.getDelta(); t+=d;
-    if(model){
-      model.rotation.y+=0.005;
-      model.position.y+=( Math.sin(t*0.7)*0.05 - model.position.y )*0.05;
-    }
-    orb.position.set(Math.sin(t*0.5)*3, 1.5, Math.cos(t*0.5)*3);
-    orb.intensity=1.8+Math.sin(t*1.1)*0.5;
-    ring1.rotation.z=t*0.25; ring2.rotation.z=-t*0.18; ring3.rotation.z=t*0.12;
-    var rp=0.14+Math.sin(t*0.9)*0.06;
-    ring1.material.opacity=rp;
-    if(mixer) mixer.update(d);
-    renderer.render(scene,camera);
-  })();
-})();
-
+  tick();
+}
+function showEnter(){if(finished)return;finished=true;loadSect.classList.add('fade-out');setTimeout(()=>{loadSect.style.display='none';enterWrap.classList.add('visible')},500)}
+video.muted=true;video.play().then(()=>{unmuteP.classList.add('visible');setTimeout(()=>unmuteP.classList.remove('visible'),5000)}).catch(()=>{document.addEventListener('click',()=>{video.muted=true;video.play().catch(()=>{})},{once:true})});
+document.addEventListener('click',()=>{if(video.muted){video.muted=false;unmuteP.classList.remove('visible')}});
+skipBtn.addEventListener('click',()=>{video.pause();progress=100;loadFill.style.width='100%';loadPct.textContent='100%';loadLabel.textContent='Ready';loadLabel.classList.add('ready');setTimeout(showEnter,300)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '||e.key==='Escape'){if(!finished){e.preventDefault();skipBtn.click()}else if(enterWrap.classList.contains('visible')){e.preventDefault();enterBtn.click()}}});
+enterBtn.addEventListener('click',e=>{e.preventDefault();fadeBlack.classList.add('active');setTimeout(()=>{window.location.href=enterBtn.getAttribute('href')},1000)});
+window.addEventListener('load',()=>{revealSequence();setTimeout(startLoading,1600)});
 </script>
 </body>
 </html>
-
