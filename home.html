@@ -481,6 +481,8 @@ section{scroll-margin-top:130px}nav{grid-template-columns:minmax(0,1fr) auto min
 @media(max-width:600px){.hero-side-label{display:none}.exp-right{padding:40px 24px}.fleet-video-wrap{height:420px}.fleet-video-badge{left:24px}.process-steps{grid-template-columns:1fr}.footer-bottom{flex-wrap:wrap;gap:20px}#process{padding:60px 24px}.nav-logo img{height:48px!important;max-width:105px}.nav-cta{max-width:110px;text-align:center}.hero-ctas a{padding:15px 22px}.hero-inner{padding-top:100px;padding-bottom:60px}#hero{height:auto;min-height:100svh}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.mw{opacity:1!important;transform:none!important}}
 
+
+.vehicle-viewer{border:1px solid var(--border);padding:16px;background:#121212;min-width:0}.vehicle-stage{position:relative;aspect-ratio:11/7;min-height:220px;background:radial-gradient(ellipse at 52% 44%,#51483d 0%,#282421 52%,#121212 80%)}.vehicle-stage img,.vehicle-stage canvas{width:100%;height:100%;object-fit:contain;display:block}.vehicle-stage canvas{position:absolute;inset:0}.vehicle-viewer [hidden]{display:none!important}.vehicle-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.vehicle-button{margin-top:12px;border:1px solid var(--gold);background:#181818;color:var(--gold-light);padding:12px 16px;font:12px var(--mono);min-height:44px}.vehicle-button:disabled{opacity:.6;cursor:wait}.vehicle-status{color:var(--silver);font-size:12px;line-height:1.6;margin-top:14px}
 </style>
 </head>
 <body>
@@ -622,7 +624,21 @@ section{scroll-margin-top:130px}nav{grid-template-columns:minmax(0,1fr) auto min
     </div>
   </div>
   <div class="casino-right">
-    <div class="casino-static" role="img" aria-label="The Chauffeurs gold and silver monogram"><span class="casino-static-mark" aria-hidden="true">TC</span><span>THE CHAUFFEURS</span><small>LAS VEGAS</small></div>
+    <div class="vehicle-viewer" id="escalade-viewer" aria-label="Explore the Cadillac SUV">
+      <div class="vehicle-stage">
+        <img src="/media/escalade-front-e502cccfa535.webp" width="1100" height="700" loading="lazy" decoding="async" alt="Black Cadillac SUV viewed from the front, with chrome grille and alloy wheels">
+        <canvas hidden role="img" aria-label="Interactive black Cadillac SUV; use the buttons below to rotate"></canvas>
+      </div>
+      <button type="button" class="vehicle-button" data-launch hidden>Explore in 3D</button>
+      <div class="vehicle-controls" data-controls hidden role="group" aria-label="Vehicle view controls">
+        <button type="button" class="vehicle-button" data-turn="-0.35" aria-label="Rotate vehicle left">Rotate left</button>
+        <button type="button" class="vehicle-button" data-toggle aria-pressed="false">Play rotation</button>
+        <button type="button" class="vehicle-button" data-turn="0.35" aria-label="Rotate vehicle right">Rotate right</button>
+        <button type="button" class="vehicle-button" data-static>Show image</button>
+      </div>
+      <p class="vehicle-status" data-status role="status" aria-live="polite">Optional interactive view · approximately 5 MB including viewer.</p>
+      <noscript><p>The vehicle image is available. Interactive rotation requires JavaScript.</p></noscript>
+    </div>
     <div class="casino-tiers">
       <div class="tier-row"><span class="tier-name">Bellagio</span><span class="tier-badge black">Black Card Tier</span><span class="tier-arrow">→</span></div>
       <div class="tier-row"><span class="tier-name">MGM Grand</span><span class="tier-badge platinum">Platinum Tier</span><span class="tier-arrow">→</span></div>
@@ -907,8 +923,9 @@ maniIo.observe(document.getElementById('manifesto'));
 /* ===== HERO THREE.JS ===== */
 
 
-/* Static casino illustration intentionally replaces fragile WebGL initialization. */
+/* Interactive vehicle is an optional, separately loaded enhancement. */
 </script>
+<script src="/escalade-viewer.js" defer></script>
 </body>
 </html>
 

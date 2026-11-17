@@ -30,7 +30,7 @@ p{margin:0;color:#e3d8c3;letter-spacing:.13em;text-transform:uppercase;font-size
 <body>
 <div class="stage" aria-hidden="true">
   <img alt="" src="/media/intro-poster-c403926ca932.webp">
-  <video id="intro" autoplay muted playsinline preload="auto" src="/media/intro-75325486bb14.mp4"></video>
+  <video id="intro" muted playsinline preload="auto"></video>
 </div>
 <div class="shade" aria-hidden="true"></div>
 <main>
@@ -52,6 +52,9 @@ p{margin:0;color:#e3d8c3;letter-spacing:.13em;text-transform:uppercase;font-size
     clearTimeout(timer);
     location.replace(home);
   }
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  if (motion.matches) { openHome(); return; }
+  motion.addEventListener?.('change', event => { if (event.matches) openHome(); });
   function watchForStall() {
     clearTimeout(timer);
     if (!opened) timer = setTimeout(openHome, 8000);
@@ -68,6 +71,7 @@ p{margin:0;color:#e3d8c3;letter-spacing:.13em;text-transform:uppercase;font-size
   watchForStall();
   if (video.error || video.ended) { openHome(); return; }
   video.muted = true;
+  video.src = "/media/intro-75325486bb14.mp4";
   const playback = video.play();
   if (playback) playback.catch(openHome);
 })();
