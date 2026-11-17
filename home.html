@@ -7,9 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <style>
 /* ===== RESET & ROOT ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -470,6 +467,20 @@ nav img:hover {
   transition: filter .3s;
 }
 
+
+/* Reliability pass: visible content first, lightweight enhancement second. */
+html,body{cursor:auto;max-width:100%;overflow-x:clip}a,button{cursor:pointer}
+#cursor,#cursor-dot{display:none}a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:5px}
+section{scroll-margin-top:130px}nav{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:24px}.nav-links{gap:clamp(10px,2vw,24px);min-width:0}.nav-logo img{max-width:160px}
+.menu-toggle{display:none;color:var(--silver);background:var(--deep);border:1px solid var(--gold);padding:10px 14px;font:12px var(--mono)}
+.hero-kicker span,.hero-headline .word span,.hero-desc,.hero-ctas,.hero-stat,.hero-feat,.exp-image,.exp-right,.cta-dark,.cta-orange,.cta-gold,.step,.manifesto-sub{opacity:1;transform:none}
+.casino-static{min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;border:1px solid var(--border);background:radial-gradient(ellipse at center,rgba(212,175,55,.12),transparent 70%);font:12px var(--mono);letter-spacing:.3em;color:var(--silver)}
+.casino-static-mark{font:100px Georgia,serif;color:var(--gold);letter-spacing:-.1em;padding-right:.1em}.casino-static small{letter-spacing:.3em}
+.booking-status{padding:70px max(24px,7vw);background:var(--surface);border-top:1px solid var(--gold)}.booking-status h2{font:clamp(30px,5vw,56px) var(--bebas);margin-bottom:20px}.booking-status p:last-child{max-width:700px;color:var(--silver);line-height:1.7}.fleet-availability{padding:24px;color:var(--silver);text-align:center;line-height:1.6}.cta-phone,.cta-email{overflow-wrap:anywhere}
+@media(max-width:1000px){nav,nav.scrolled{padding:14px 20px;gap:12px;grid-template-columns:1fr auto 1fr}.menu-toggle{display:block;justify-self:start}.nav-logo{grid-column:2;grid-row:1}.nav-logo img{height:60px!important;max-width:140px}.nav-cta{grid-column:3;grid-row:1;padding:10px;font-size:10px;letter-spacing:.03em}.nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:var(--black);border-bottom:1px solid var(--gold);padding:24px;gap:20px}.nav-links.open{display:flex;flex-direction:column}.hero-inner{min-width:0}.hero-headline{overflow-wrap:anywhere}}
+@media(max-width:600px){.hero-side-label{display:none}.exp-right{padding:40px 24px}.fleet-video-wrap{height:420px}.fleet-video-badge{left:24px}.process-steps{grid-template-columns:1fr}.footer-bottom{flex-wrap:wrap;gap:20px}#process{padding:60px 24px}.nav-logo img{height:48px!important;max-width:105px}.nav-cta{max-width:110px;text-align:center}.hero-ctas a{padding:15px 22px}.hero-inner{padding-top:100px;padding-bottom:60px}#hero{height:auto;min-height:100svh}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.mw{opacity:1!important;transform:none!important}}
+
 </style>
 </head>
 <body>
@@ -484,22 +495,23 @@ nav img:hover {
 
 <!-- NAV -->
 <nav id="main-nav">
-  <ul class="nav-links">
+  <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-links">Menu</button>
+  <ul class="nav-links" id="primary-links">
     <li><a href="#strip-panels">Services</a></li>
     <li><a href="#experience">Experience</a></li>
     <li><a href="#casino">Casino</a></li>
     <li><a href="#fleet">Fleet</a></li>
     <li><a href="#process">Process</a></li>
   </ul>
-  <a href="#" class="nav-logo">
+  <a href="#hero" class="nav-logo">
     <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260701_084539_63b333de-b8ac-4d73-8751-2a7a5b481e7b.png" alt="The Chauffeurs" height="77" style="height:77px;width:auto;object-fit:contain;;filter:drop-shadow(0 0 8px rgba(212,175,55,0.5))">
   </a>
-  <a href="tel:+170****0100" class="nav-cta">Book Now</a>
+  <a href="#booking-status" class="nav-cta">Booking status</a>
 </nav>
 
 <!-- HERO -->
 <section id="hero" style="background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011225_6b4a60df-c57a-4d2c-a8e9-7156892bf217.png');background-size:cover;background-position:center;">
-  <video id="hero-video" autoplay muted loop playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011225_6b4a60df-c57a-4d2c-a8e9-7156892bf217.png" src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011521_6a188bb5-a64b-4099-b052-a48392719aeb.mp4"></video>
+  <video id="hero-video" preload="none" muted loop playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011225_6b4a60df-c57a-4d2c-a8e9-7156892bf217.png" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011521_6a188bb5-a64b-4099-b052-a48392719aeb.mp4"></video>
   <div id="hero-overlay"></div>
   <div class="hero-side-label left">The Strip · Ground Command · Est. 2024</div>
   <div class="hero-side-label right">Casino Contracts · Private · Corporate</div>
@@ -513,7 +525,7 @@ nav img:hover {
       </h1>
       <p class="hero-desc" id="hero-desc">The Strip's most trusted ground operation. Casino-contracted, event-ready, and precision-dispatched — 24 hours a day, 365 days a year.</p>
       <div class="hero-ctas" id="hero-ctas">
-        <a href="tel:+170****0100" class="cta-primary">Book a Ride</a>
+        <a href="#booking-status" class="cta-primary">Booking information</a>
         <a href="#casino" class="cta-secondary">Casino Partners</a>
       </div>
     </div>
@@ -610,7 +622,7 @@ nav img:hover {
     </div>
   </div>
   <div class="casino-right">
-    <canvas id="casino-canvas"></canvas>
+    <div class="casino-static" role="img" aria-label="The Chauffeurs gold and silver monogram"><span class="casino-static-mark" aria-hidden="true">TC</span><span>THE CHAUFFEURS</span><small>LAS VEGAS</small></div>
     <div class="casino-tiers">
       <div class="tier-row"><span class="tier-name">Bellagio</span><span class="tier-badge black">Black Card Tier</span><span class="tier-arrow">→</span></div>
       <div class="tier-row"><span class="tier-name">MGM Grand</span><span class="tier-badge platinum">Platinum Tier</span><span class="tier-arrow">→</span></div>
@@ -625,8 +637,8 @@ nav img:hover {
 <!-- FLEET SECTION -->
 <section id="fleet">
   <div class="fleet-video-wrap">
-    <video autoplay muted loop playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011226_93ecb91d-56a7-4929-ab2b-409e5788e9a3.png">
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_012649_7f6088af-34f6-4e3f-9071-2c7f0a8e3694.mp4" type="video/mp4">
+    <video id="fleet-video" preload="none" muted loop playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_011226_93ecb91d-56a7-4929-ab2b-409e5788e9a3.png">
+      <source data-src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260622_012649_7f6088af-34f6-4e3f-9071-2c7f0a8e3694.mp4" type="video/mp4">
     </video>
     <div class="fleet-video-overlay"></div>
     <div class="fleet-video-badge reveal">
@@ -634,7 +646,7 @@ nav img:hover {
       <div class="fvb-title">The<br>Fleet.<br><em>Curated.</em></div>
     </div>
   </div>
-  </div>
+  <p class="fleet-availability">Fleet details and availability will be confirmed when booking opens.</p>
 </section>
 
 <!-- MANIFESTO -->
@@ -659,22 +671,22 @@ nav img:hover {
     <div class="step">
       <div class="step-circle">I</div>
       <div class="step-label">Book</div>
-      <p class="step-desc">Schedule online, by phone, or through your casino host. Instant confirmation within 90 seconds.</p>
+      <p class="step-desc">Online reservations are not yet available here. See the booking update below before making travel plans.</p>
     </div>
     <div class="step">
       <div class="step-circle">II</div>
       <div class="step-label">Meet</div>
-      <p class="step-desc">Your chauffeur arrives early, monitors your flight, and meets you in the terminal — name board in hand.</p>
+      <p class="step-desc">Once a verified reservation channel is available, confirm your pickup location, arrival time, and meeting instructions.</p>
     </div>
     <div class="step">
       <div class="step-circle">III</div>
       <div class="step-label">Arrive</div>
-      <p class="step-desc">Glide to your destination in silence and style. Real-time ETA, preferred route, zero detours.</p>
+      <p class="step-desc">Confirm your destination, route preferences, and any special requirements as part of your reservation.</p>
     </div>
     <div class="step">
       <div class="step-circle">IV</div>
       <div class="step-label">Return</div>
-      <p class="step-desc">Your return ride is pre-staged. One call, and we're already moving before you hang up.</p>
+      <p class="step-desc">If you need a return journey, confirm its timing and availability alongside your outbound trip.</p>
     </div>
   </div>
 </section>
@@ -684,17 +696,21 @@ nav img:hover {
   <div class="cta-dark" id="cta-left">
     <div class="cta-dark-eyebrow">For Travelers</div>
     <h2 class="cta-dark-title">YOUR STRIP.<br/>YOUR SCHEDULE.</h2>
-    <p class="cta-dark-sub">The Strip waits for no one — but your chauffeur does. Book your private ride in under 60 seconds.</p>
-    <a href="tel:+170****0100" class="cta-phone">+1 (702) 555-0100</a>
+    <p class="cta-dark-sub">Explore the experience. Online booking is not yet available through this website.</p>
+    <a href="#booking-status" class="cta-phone">Booking information</a>
   </div>
   <div class="cta-orange" id="cta-right">
     <div class="cta-orange-eyebrow">For Casino Partners</div>
     <h2 class="cta-orange-title">COMMAND-LEVEL CONTRACTS.</h2>
     <p class="cta-orange-sub">Join 14 Strip properties that trust us with their most important guests. White-label fleet programs available.</p>
-    <a href="mailto:contracts@thechauffeurs.com" class="cta-email">contracts@thechauffeurs.com</a>
+    <a href="#booking-status" class="cta-email">Contact information pending</a>
   </div>
 </section>
 
+<section id="booking-status" class="booking-status" aria-labelledby="booking-heading" tabindex="-1">
+  <p class="process-eyebrow">Booking update</p><h2 id="booking-heading">BOOKING IS NOT YET OPEN HERE.</h2>
+  <p>We are updating the reservation and contact details on this website. This page cannot currently accept or confirm a ride. Please check back for verified booking information.</p>
+</section>
 <!-- FOOTER -->
 <footer>
   <div class="footer-top">
@@ -707,58 +723,76 @@ nav img:hover {
     <div>
       <div class="footer-col-title">Services</div>
       <ul class="footer-links">
-        <li><a href="#">Casino Contracts</a></li>
-        <li><a href="#">Private Chauffeur</a></li>
-        <li><a href="#">Airport Transfers</a></li>
-        <li><a href="#">Event Fleet</a></li>
-        <li><a href="#">Corporate</a></li>
+        <li><a href="#casino">Casino Contracts</a></li>
+        <li><a href="#strip-panels">Private Chauffeur</a></li>
+        <li><a href="#strip-panels">Airport Transfers</a></li>
+        <li><a href="#strip-panels">Event Fleet</a></li>
+        <li><a href="#strip-panels">Corporate</a></li>
       </ul>
     </div>
     <div>
       <div class="footer-col-title">Fleet</div>
       <ul class="footer-links">
-        <li><a href="#">Escalade ESV</a></li>
-        <li><a href="#">Mercedes S-Class</a></li>
-        <li><a href="#">Rolls-Royce Ghost</a></li>
-        <li><a href="#">Sprinter Executive</a></li>
-        <li><a href="#">Limo Bus Ultra</a></li>
+        <li><a href="#fleet">Escalade ESV</a></li>
+        <li><a href="#fleet">Mercedes S-Class</a></li>
+        <li><a href="#fleet">Rolls-Royce Ghost</a></li>
+        <li><a href="#fleet">Sprinter Executive</a></li>
+        <li><a href="#fleet">Limo Bus Ultra</a></li>
       </ul>
     </div>
     <div>
       <div class="footer-col-title">Contact</div>
       <ul class="footer-links">
-        <li><a href="tel:+170****0100">+1 (702) 555-0100</a></li>
-        <li><a href="mailto:dispatch@thechauffeurs.com">dispatch@thechauffeurs.com</a></li>
-        <li><a href="#">Las Vegas, NV 89109</a></li>
-        <li><a href="#">Casino Partnerships</a></li>
+        <li><a href="#booking-status">Booking information</a></li>
+        <li><a href="#booking-status">Contact information pending</a></li>
+        <li><span>Las Vegas, Nevada</span></li>
+        <li><a href="#casino">Casino Partnerships</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
     <span class="footer-copy">© 2024 The Chauffeurs LLC — All Rights Reserved</span>
-    <div class="dispatch-badge"><div class="dispatch-dot"></div>Dispatch Active — 24/7</div>
+    <a class="dispatch-badge" href="#booking-status">Booking information pending</a>
   </div>
 </footer>
 
 <script>
-/* ===== CURSOR ===== */
-const cursor=document.getElementById('cursor');
-const dot=document.getElementById('cursor-dot');
-let mx=window.innerWidth/2,my=window.innerHeight/2,cx=mx,cy=my;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px'});
-document.querySelectorAll('a,button,.perk,.tier-row,.fleet-card,.exp-tag').forEach(el=>{
-  el.addEventListener('mouseenter',()=>cursor.classList.add('hover'));
-  el.addEventListener('mouseleave',()=>cursor.classList.remove('hover'));
-});
-(function lerpCursor(){cx+=(mx-cx)*.12;cy+=(my-cy)*.12;cursor.style.left=cx+'px';cursor.style.top=cy+'px';requestAnimationFrame(lerpCursor)})();
-
-
+/* Native cursor and semantic navigation remain usable without animation. */
+const menuButton=document.getElementById('menu-toggle');
+const menuLinks=document.getElementById('primary-links');
+function closeMenu(){menuButton.setAttribute('aria-expanded','false');menuLinks.classList.remove('open');}
+menuButton.addEventListener('click',()=>{const open=menuButton.getAttribute('aria-expanded')!=='true';menuButton.setAttribute('aria-expanded',String(open));menuLinks.classList.toggle('open',open);});
+menuLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menuButton.getAttribute('aria-expanded')==='true'){closeMenu();menuButton.focus();}});
+/* Media is an enhancement: never fetch motion assets for reduced-motion visitors. */
+const motionPreference=window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : {matches:false};
+const mediaVideos=Array.from(document.querySelectorAll('video'));
+const visibleVideos=new Set();
+function loadVideo(video){
+  if(video.dataset.loaded==='true')return;
+  if(video.dataset.src)video.src=video.dataset.src;
+  video.querySelectorAll('source[data-src]').forEach(source=>{source.src=source.dataset.src;});
+  video.dataset.loaded='true';video.load();
+}
+function syncMedia(){mediaVideos.forEach(video=>{
+  if(document.hidden||motionPreference.matches||!visibleVideos.has(video)){video.pause();return;}
+  loadVideo(video);
+  const playback=video.play();if(playback&&playback.catch)playback.catch(()=>{});
+});}
+if('IntersectionObserver' in window){
+  const mediaObserver=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting)visibleVideos.add(entry.target);else visibleVideos.delete(entry.target);});syncMedia();},{threshold:0.05});
+  mediaVideos.forEach(video=>mediaObserver.observe(video));
+}else{
+  // Older browsers retain static posters rather than eagerly downloading both videos.
+  mediaVideos.forEach(video=>video.pause());
+}
+if(motionPreference.addEventListener)motionPreference.addEventListener('change',syncMedia);
+else if(motionPreference.addListener)motionPreference.addListener(syncMedia);
+document.addEventListener('visibilitychange',syncMedia);
 /* ══════════════════════════════════════
    HERO REVEAL (intro handled by index.html)
    ══════════════════════════════════════ */
-window.addEventListener('load', function() {
-  triggerHeroAnimations();
-});
+triggerHeroAnimations();
 
 function triggerHeroAnimations() {
   var kicker = document.getElementById('hero-kicker');
@@ -821,6 +855,7 @@ window.addEventListener('scroll',()=>{
 },{passive:true});
 
 /* ===== INTERSECTION OBSERVER ===== */
+if ('IntersectionObserver' in window) {
 const ioOpts={threshold:.18};
 const io=new IntersectionObserver((entries)=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
@@ -840,6 +875,8 @@ const ctaIo=new IntersectionObserver(entries=>{
 },{threshold:.2});
 document.querySelectorAll('#cta-left,#cta-right').forEach(el=>ctaIo.observe(el));
 
+}
+
 /* ===== MANIFESTO WORD REVEAL ===== */
 const quote="We don't just drive. We command the Strip.";
 const accentWords=['command','Strip'];
@@ -854,6 +891,7 @@ quote.split(' ').forEach((word,i)=>{
   span.style.transitionDelay=(i*0.07)+'s';
   mqDiv.appendChild(span);
 });
+if ('IntersectionObserver' in window) {
 const maniIo=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
@@ -864,127 +902,12 @@ const maniIo=new IntersectionObserver(entries=>{
   });
 },{threshold:.3});
 maniIo.observe(document.getElementById('manifesto'));
+}else{document.querySelectorAll('.mw').forEach(w=>w.classList.add('in'));document.getElementById('manifesto-sub').classList.add('in');}
 
 /* ===== HERO THREE.JS ===== */
 
 
-/* ===== CASINO THREE.JS ===== */
-(function initCasinoGLB(){
-  var canvas = document.getElementById('casino-canvas');
-  if(!canvas) return;
-  var w = canvas.offsetWidth||420, h = canvas.offsetHeight||500;
-
-  var renderer = new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.setSize(w,h);
-  renderer.setClearColor(0x000000,0);
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.6;
-
-  var scene  = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(42, w/h, 0.01, 1000);
-  camera.position.set(0, 0.2, 3.4);
-  camera.lookAt(0,0,0);
-
-  /* Lighting */
-  scene.add(new THREE.AmbientLight(0x222222, 2.0));
-  var key = new THREE.DirectionalLight(0xD4AF37, 3.0);
-  key.position.set(3,5,3); scene.add(key);
-  var fill = new THREE.DirectionalLight(0xC7CCD2, 1.0);
-  fill.position.set(-4,2,-2); scene.add(fill);
-  var rim = new THREE.DirectionalLight(0xFFFFFF, 0.8);
-  rim.position.set(0,3,-4); scene.add(rim);
-  var orb = new THREE.PointLight(0xD4AF37, 2.0, 10);
-  scene.add(orb);
-
-  /* Particles */
-  var pPos = new Float32Array(200*3);
-  for(var i=0;i<200;i++){
-    pPos[i*3]=(Math.random()-.5)*6;
-    pPos[i*3+1]=(Math.random()-.5)*6;
-    pPos[i*3+2]=(Math.random()-.5)*4;
-  }
-  var pGeo=new THREE.BufferGeometry();
-  pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
-  scene.add(new THREE.Points(pGeo,new THREE.PointsMaterial({
-    color:0xD4AF37,size:0.022,transparent:true,opacity:0.5,
-    blending:THREE.AdditiveBlending,depthWrite:false
-  })));
-
-  /* Gold rings beneath model */
-  function makeRing(r1,r2,col,op){
-    var m=new THREE.Mesh(
-      new THREE.RingGeometry(r1,r2,64),
-      new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide,transparent:true,opacity:op})
-    );
-    m.rotation.x=-Math.PI/2; m.position.y=-1.1;
-    return m;
-  }
-  var ring1=makeRing(0.55,0.58,0xD4AF37,0.2);
-  var ring2=makeRing(0.78,0.80,0xC7CCD2,0.1);
-  var ring3=makeRing(1.0,1.01,0xD4AF37,0.06);
-  scene.add(ring1); scene.add(ring2); scene.add(ring3);
-
-  /* Load GLB */
-  var model=null, mixer=null;
-  if(typeof THREE.GLTFLoader !== 'undefined'){
-    var loader=new THREE.GLTFLoader();
-    loader.load('https://d2ol7oe51mr4n9.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/da3263fd-c937-4e50-a8f9-292b62a15516.glb',
-      function(gltf){
-        model=gltf.scene;
-        var box=new THREE.Box3().setFromObject(model);
-        var ctr=box.getCenter(new THREE.Vector3());
-        var sz=box.getSize(new THREE.Vector3());
-        var sc=1.9/Math.max(sz.x,sz.y,sz.z);
-        model.scale.setScalar(sc);
-        model.position.copy(ctr.multiplyScalar(-sc));
-        model.traverse(function(c){
-          if(c.isMesh && c.material){
-            c.material.envMapIntensity=1.5;
-            c.material.needsUpdate=true;
-          }
-        });
-        scene.add(model);
-        if(gltf.animations&&gltf.animations.length){
-          mixer=new THREE.AnimationMixer(model);
-          gltf.animations.forEach(function(clip){mixer.clipAction(clip).play();});
-        }
-      },
-      null,
-      function(e){console.warn('GLB error:',e);}
-    );
-  }
-
-  /* Resize */
-  var ro=new ResizeObserver(function(){
-    var nw=canvas.offsetWidth,nh=canvas.offsetHeight;
-    if(!nw||!nh)return;
-    renderer.setSize(nw,nh);
-    camera.aspect=nw/nh;
-    camera.updateProjectionMatrix();
-  });
-  ro.observe(canvas);
-
-  /* Animate */
-  var clock=new THREE.Clock(), t=0;
-  (function loop(){
-    requestAnimationFrame(loop);
-    var d=clock.getDelta(); t+=d;
-    if(model){
-      model.rotation.y+=0.005;
-      model.position.y+=( Math.sin(t*0.7)*0.05 - model.position.y )*0.05;
-    }
-    orb.position.set(Math.sin(t*0.5)*3, 1.5, Math.cos(t*0.5)*3);
-    orb.intensity=1.8+Math.sin(t*1.1)*0.5;
-    ring1.rotation.z=t*0.25; ring2.rotation.z=-t*0.18; ring3.rotation.z=t*0.12;
-    var rp=0.14+Math.sin(t*0.9)*0.06;
-    ring1.material.opacity=rp;
-    if(mixer) mixer.update(d);
-    renderer.render(scene,camera);
-  })();
-})();
-
+/* Static casino illustration intentionally replaces fragile WebGL initialization. */
 </script>
 </body>
 </html>
