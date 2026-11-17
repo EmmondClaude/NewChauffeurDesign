@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<noscript><meta http-equiv="refresh" content="0;url=home.html"></noscript>
 <title>The Chauffeurs — Arriving</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,19 +25,12 @@ h1{margin:0;letter-spacing:.2em;text-indent:.2em;font-size:clamp(1.15rem,5vw,2.1
 h1 span{color:var(--gold)}
 p{margin:0;color:#e3d8c3;letter-spacing:.13em;text-transform:uppercase;font-size:.78rem}
 .rule{width:7rem;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
-a,button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:.65rem 1.1rem;color:#fff;background:#14100cee;border:1px solid #7f6e43;text-decoration:none;font:700 .77rem "Space Grotesk",Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;cursor:pointer}
-a[aria-label="Enter site"]{background:var(--gold);color:#151008;border-color:var(--gold)}
-:is(a,button):hover{border-color:#fff}
-:is(a,button):focus-visible{outline:2px solid #fff;outline-offset:4px}
-.controls{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem}
-[hidden]{display:none!important}
 </style>
 </head>
 <body>
 <div class="stage" aria-hidden="true">
   <img alt="" src="https://cdn.higgsfield.ai/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260713_224830_bd35d856-b927-4f15-af46-5536f3fc4a22_thumbnail.webp">
-  <video id="intro" muted playsinline preload="none" data-src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260713_224830_bd35d856-b927-4f15-af46-5536f3fc4a22.mp4"></video>
+  <video id="intro" autoplay muted playsinline preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_3ECGVFZTaGiKHb6MBbVpPbvllLv/hf_20260713_224830_bd35d856-b927-4f15-af46-5536f3fc4a22.mp4"></video>
 </div>
 <div class="shade" aria-hidden="true"></div>
 <main>
@@ -45,65 +39,37 @@ a[aria-label="Enter site"]{background:var(--gold);color:#151008;border-color:var
     <h1>The <span>Chauffeurs</span></h1>
     <p>Luxury Transportation · Las Vegas</p>
     <div class="rule" aria-hidden="true"></div>
-    <div class="actions">
-      <a href="home.html" aria-label="Enter site">Enter Site</a>
-      <a href="home.html">Skip Intro</a>
-    </div>
-    <div class="controls" id="controls" hidden>
-      <button id="play" type="button">Play intro</button>
-      <button id="sound" type="button" hidden>Unmute intro</button>
-    </div>
   </div>
 </main>
 <script>
 (() => {
   const video = document.querySelector('#intro');
-  const controls = document.querySelector('#controls');
-  const play = document.querySelector('#play');
-  const sound = document.querySelector('#sound');
-  const motion = matchMedia('(prefers-reduced-motion: reduce)');
-  const connection = navigator.connection;
-  let started = false;
-  function stop() {
-    video.pause();
-    video.muted = true;
-    video.classList.remove('playing');
-    play.textContent = 'Play intro';
-    sound.hidden = true;
-    sound.textContent = 'Unmute intro';
+  const home = new URL('home.html', location.href).href;
+  let timer, opened = false, lastTime = 0;
+  function openHome() {
+    if (opened) return;
+    opened = true;
+    clearTimeout(timer);
+    location.replace(home);
   }
-  async function start() {
-    if (!started) {
-      video.src = video.dataset.src;
-      started = true;
-    }
-    try {
-      await video.play();
-    } catch {
-      stop();
-    }
+  function watchForStall() {
+    clearTimeout(timer);
+    if (!opened) timer = setTimeout(openHome, 8000);
   }
-  controls.hidden = false;
-  video.addEventListener('playing', () => {
-    if (document.hidden) { stop(); return; }
-    video.classList.add('playing');
-    play.textContent = 'Pause intro';
-    sound.hidden = false;
+  video.addEventListener('ended', openHome, {once:true});
+  video.addEventListener('error', openHome, {once:true});
+  video.addEventListener('playing', () => video.classList.add('playing'));
+  video.addEventListener('timeupdate', () => {
+    if (video.currentTime > lastTime) {
+      lastTime = video.currentTime;
+      watchForStall();
+    }
   });
-  video.addEventListener('ended', stop);
-  video.addEventListener('error', () => { stop(); started = false; });
-  play.addEventListener('click', () => {
-    if (!video.paused) { stop(); return; }
-    start();
-  });
-  sound.addEventListener('click', () => {
-    video.muted = !video.muted;
-    sound.textContent = video.muted ? 'Unmute intro' : 'Mute intro';
-  });
-  motion.addEventListener?.('change', (event) => { if (event.matches) stop(); });
-  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(); });
-  addEventListener('pagehide', stop);
-  if (!motion.matches && !connection?.saveData && !document.hidden) start();
+  watchForStall();
+  if (video.error || video.ended) { openHome(); return; }
+  video.muted = true;
+  const playback = video.play();
+  if (playback) playback.catch(openHome);
 })();
 </script>
 </body>
